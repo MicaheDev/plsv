@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Montserrat";
+  /* Asegúrate de que el archivo sea la versión "Variable" */
+  src: url("/fonts/Montserrat.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Definimos variables por si acaso el navegador no soporta env() */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+body {
+  padding-top:  var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
