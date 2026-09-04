@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { authGuard } from "./guards/authGuard";
 
 
 const routes = [
@@ -26,6 +27,7 @@ const routes = [
     path: "/learning",
     name: "Learning",
     component: () => import("@/pages/learning/LearningView.vue"),
+    meta: { requiresAuth: true },
   }
 ];
 
@@ -35,5 +37,5 @@ const router = createRouter({
 });
 
 // EL GUARDÍAN DE NAVEGACIÓN (beforeEach)
-//router.beforeEach(authGuard);
+router.beforeEach(authGuard);
 export default router;

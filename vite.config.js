@@ -42,4 +42,13 @@ export default defineConfig({
     },
     assetsInclude: ["**/*.task", "**/*.wasm"],
   },
+  
+  server: {
+    watch: {
+      ignored: [
+        '**/pocketbase/**',
+        '**/pocketbase/pb_data/**'
+      ]
+    }
+  }
 })

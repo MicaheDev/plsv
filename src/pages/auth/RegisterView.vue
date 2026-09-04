@@ -34,43 +34,29 @@ async function handleOnSubmit() {
     }
 
     try {
-        // 1. Crear el usuario
-        const userRecord = await pb.collection('users').create({
+        // Enviar todo en UNA SOLA petición de creación de usuario:
+        await pb.collection('users').create({
             full_name: form.fullName,
             email: form.email,
             password: form.password,
             passwordConfirm: form.passwordConfirm,
             role: form.role,
-            emailVisibility: true
-        });
-
-        // 2. Crear las preferencias vinculadas al ID del usuario
-        await pb.collection('user_preferences').create({
-            user: userRecord.id,
+            emailVisibility: true,
+            
+            // 📍 DATOS EXTRA PARA EL HOOK:
             level_preference: onboardingPreferences.value.lsvLevel || "NONE",
             daily_goal: parseInt(onboardingPreferences.value.dailyGoal) || 10,
             audio_mode: onboardingPreferences.value.audioMode || "FULL_AUDIO"
         });
 
-        // 3. Crear las estadísticas iniciales del juego
-        await pb.collection('user_game_stats').create({
-            user: userRecord.id,
-            current_level: "A1",
-            current_hearts: 5,
-            total_score: 0,
-            current_streak: 0,
-            last_activity_day: new Date().toISOString()
-        });
-
-        // 4. Iniciar sesión e ingresar
+        // Iniciar sesión
         await pb.collection('users').authWithPassword(form.email, form.password);
 
         localStorage.removeItem('temp_preferences_data');
         router.push('/learning');
 
-
     } catch (error) {
-        console.error("Error en el proceso de registro:", error);
+        console.error("Error en el registro:", error);
         errorMessage.value = error.message || 'Error al registrar el usuario.';
     } finally {
         isLoading.value = false;
@@ -102,8 +88,7 @@ async function handleOnSubmit() {
             <br>
 
             <label for="confirm-password">Confirmar Contraseña</label><br>
-            <input type="password" id="confirm-password" v-model="form.passwordConfirm" minlength="8" required
-                placeholder="••••"><br>
+            <input type="password" id="confirm-password" v-model="form.passwordConfirm" minlength="8" required placeholder="••••"><br>
             <br>
 
             <button type="submit" :disabled="isLoading">

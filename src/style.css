@@ -9,6 +9,7 @@
   font-display: swap;
 }
 
+
 :root {
   /* Definimos variables por si acaso el navegador no soporta env() */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -20,4 +21,10 @@
 body {
   padding-top:  var(--safe-top);
   padding-bottom: var(--safe-bottom);
+}
+
+@layer base {
+  body {
+    font-family: "Montserrat", sans-serif;
+  }
 }

@@ -1,8 +1,9 @@
 <script setup>
-import { reactive, onMounted, ref } from 'vue';
+import pb from '@/services/pb';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-const isLoading = ref(false); // Un simple booleano para el botón, sin composables raros
+const isLoading = ref(false); 
 const errorMessage = ref('');
 
 const router = useRouter();
@@ -54,35 +55,3 @@ async function handleOnSubmit() {
         <RouterLink to="register">Crear una cuenta</RouterLink>
     </div>
 </template>
-
-<style scoped>
-.c-login-container {
-    width: 100%;
-    height: 100svh;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
-}
-
-h1 {
-    text-align: center;
-}
-
-form {
-    width: 100%;
-}
-
-input {
-    width: 100%;
-    padding: 10px 8px;
-}
-
-button {
-    width: 100%;
-    padding: 20px;
-}
-</style>
