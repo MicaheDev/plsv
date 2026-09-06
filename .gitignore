@@ -25,9 +25,8 @@ dev-dist
 *.sw?
 
 # PocketBase
-# pocketbase/pb_data/
-# pocketbase/pb_migrations/
-# pocketbase/*.exe
-# pocketbase/pocketbase
-# !pocketbase/pb_hooks/
-# !pocketbase/pb_public/.gitkeep
+pocketbase/pocketbase
+pocketbase/*.exe
+pocketbase/pb_data/
+!pocketbase/pb_migrations/
+!pocketbase/pb_hooks/
