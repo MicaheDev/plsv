@@ -23,8 +23,44 @@ body {
   padding-bottom: var(--safe-bottom);
 }
 
+@theme {
+  --font-montserrat: "Montserrat", sans-serif;
+
+  /* --- SUPERFICIE & TEXTO --- */
+  --color-bg: #F8FAFC;
+  --color-bg-subtle: #ffffff;
+  --color-bg-muted: #e2e8f0;
+
+  --color-fg: #303645;
+  --color-fg-muted: #6E7992;
+  --color-fg-inverse: #F8FAFC;
+
+  --color-input-bg: #EAEAEA;
+  --color-input-fg: #8B8077;
+
+  /* --- ACCIONES Y MARCA --- */
+  --color-primary: #2563EB;
+  --color-primary-hover: #0437A6;
+  --color-primary-fg: #F8FAFC;
+
+  --color-secondary: #F8FAFC;
+  --color-secondary-hover: #0437A6;
+  --color-secondary-fg: #0437A6;
+
+  /* --- BORDES Y ESTRUCTURA --- */
+  --color-stroke: #C8C8C8;
+  --color-stroke-strong: #C8C8C8;
+
+  /* --- ESTADOS DE UI --- */
+  --color-danger: #ef4444;
+  --color-danger-fg: #ffffff;
+
+  --color-success: #22c55e;
+  --color-success-fg: #ffffff;
+}
+
 @layer base {
   body {
-    font-family: "Montserrat", sans-serif;
+    @apply font-montserrat bg-bg text-fg;
   }
 }
