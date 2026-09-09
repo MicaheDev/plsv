@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+"acode-start": "nohup ./pocketbase/pocketbase-arm serve > pocketbase.log 2>&1 & nohup ./node_modules/.bin/vite --host 127.0.0.1 > vite.log 2>&1 & echo '✅ Servidores iniciados correctamente'",
+    "acode-stop": "pkill -f pocketbase-arm && pkill -f vite || true",
+    "acode-status": "ps aux | grep -E 'pocketbase-arm|vite'",
+    "acode-logs": "cat vite.log pocketbase.log"
   },
   "dependencies": {
     "@phosphor-icons/vue": "^2.2.1",
