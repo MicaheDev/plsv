@@ -3,16 +3,16 @@
     <div ref="scrollRef" @scroll="handleScroll"
       class="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none [&::-webkit-scrollbar]:hidden">
       <div v-for="slide in slides" :key="slide.id"
-        class="w-screen h-full shrink-0 snap-center flex flex-col justify-center items-center gap-8 p-8 box-border">
+        class="w-full h-full shrink-0 snap-center flex flex-col justify-center items-center gap-8 px-8 pt-8 pb-2 box-border">
         <div class="flex flex-col gap-2">
           <h1 class="text-left text-3xl font-black m-0">{{ slide.title }}</h1>
           <p class="text-fg-muted font-medium text-clip text-sm">Lorem ipsum dolor, sit amet consectetur adipisicing elit.</p>
         </div>
-        <img :class="['rounded-4xl h-full bg-[#EAEAEA]', slide.className]" :src="slide.imgSrc" alt="Ilustración de la lección" />
+        <img :class="['rounded-4xl bg-[#dadada]', slide.className]" :src="slide.imgSrc" alt="Ilustración de la lección" />
       </div>
     </div>
 
-    <div class="w-full flex flex-col justify-center items-center gap-4 px-8 pb-8 pt-2 box-border">
+    <div class="w-full h-min flex flex-col justify-center items-center gap-4 px-8 pb-8 pt-2 box-border">
       <div class="flex gap-2">
         <div v-for="(_, index) in slides" :key="index" :class="[
           'h-2 rounded-full transition-all duration-300 ease-in-out',
@@ -42,19 +42,19 @@ const slides = [
     id: "1",
     title: "¡Hola! Vamos a aprender señas juntos",
     imgSrc: "img/1.png",
-    className: "w-full h-60 object-cover"
+    className: "w-full h-1/2 object-cover"
   },
   {
     id: "2",
     title: "Mira el video y repite el movimiento",
     imgSrc: "img/2.gif",
-    className: "w-60 aspect-square object-cover"
+    className: "w-full h-1/2 object-contain"
   },
   {
     id: "3",
     title: "Usa tu cámara para que te ayudemos",
     imgSrc: "img/3.jpg",
-    className: "w-full h-60 object-cover"
+    className: "w-full h-1/2 object-cover"
   }
 ]
 
@@ -83,7 +83,7 @@ const manejarSiguiente = () => {
     })
   } else {
     console.log("Redireccionando al área de aprendizaje...")
-    router.push('/aprender')
+    router.push('/welcome')
   }
 }
 </script>

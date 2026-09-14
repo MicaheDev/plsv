@@ -49,6 +49,11 @@ export default defineConfig({
         '**/pocketbase/**',
         '**/pocketbase/pb_data/**'
       ]
-    }
+    },
+    allowedHosts: [
+      'diet-seminars-significantly-portions.trycloudflare.com',
+      // O puedes usar '.trycloudflare.com' para permitir cualquier túnel de Cloudflare:
+      // '.trycloudflare.com'
+    ]
   }
 })
