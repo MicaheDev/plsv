@@ -33,10 +33,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <header class="w-full h-20 bg-white">
-    <div class="w-full h-full max-w-2xl mx-auto flex items-center">
+  <header class="w-min h-15 max-lg:shrink-0 max-lg:w-full max-lg:bg-white">
+    <div class="w-full h-full flex items-center px-4">
       <span v-if="isLoading">Cargando...</span>
-      <div v-else-if="stats" class="w-full flex items-center justify-between">
+      <div v-else-if="stats" class="w-full flex items-center justify-between gap-2">
         <span class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-400 font-bold border-2 rounded-xl">
           <PhShield :size="20" />
           {{ stats.current_level }}
