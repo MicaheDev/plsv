@@ -3,14 +3,14 @@
         <header class="w-full h-15 shrink-0 flex items-center">
             <div class="w-full max-w-2xl flex mx-auto items-center justify-between px-4 gap-4">
 
-                <div class="inline-flex items-center gap-2">
+                <RouterLink to="/" class="inline-flex items-center gap-2">
                     <img src="/logo.png" class="w-10" />
                     <h1 class="font-black">LinguSeñas</h1>
-                </div>
+                </RouterLink>
                 <div class="inline-flex items-center gap-2">
 
-                    <img src="/ue.png" class="w-10" />
-                    <img src="/uptpc.png" class="w-15" />
+                    <RouterLink to="ue-bartolome-salom"><img src="/ue.png" class="w-10" /></RouterLink>
+                    <a href="https://www.uptpc.edu.ve/" target="_blank"><img src="/uptpc.png" class="w-15" /></a>
                 </div>
 
             </div>

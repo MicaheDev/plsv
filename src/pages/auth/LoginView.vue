@@ -1,6 +1,7 @@
 <script setup>
 import Button from '@/components/Button.vue';
 import Input from '@/components/Input.vue';
+import LinkButton from '@/components/LinkButton.vue';
 import pb from '@/services/pb';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -65,9 +66,11 @@ async function handleOnSubmit() {
                 <Button class="w-full" type="submit" variant="primary">
                     {{ isLoading ? 'Accediendo...' : 'Acceder' }}
                 </Button>
-                <Button class="w-full" type="button" variant="secondary" @click="router.push('/register')">
+
+
+                <LinkButton class="w-full" variant="secondary" to="/register">
                     Crear una cuenta
-                </Button>
+                </LinkButton>
             </div>
         </form>
     </div>

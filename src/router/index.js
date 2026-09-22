@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { authGuard } from "./guards/authGuard";
 import OnboardingLayout from "@/layouts/OnboardingLayout.vue";
+import MainLayout from "@/layouts/MainLayout.vue";
 
 const routes = [
   {
@@ -30,10 +31,16 @@ const routes = [
     ],
   },
   {
-    path: "/learning",
-    name: "Learning",
-    component: () => import("@/pages/learning/LearningView.vue"),
-    meta: { requiresAuth: true },
+    path: "/",
+    meta: { layout: MainLayout, requiresAuth: true },
+    children: [
+      {
+        path: "/learning",
+        name: "Learning",
+        component: () => import("@/pages/learning/LearningView.vue"),
+        
+      },
+    ],
   },
 ];
 

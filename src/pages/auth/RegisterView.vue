@@ -4,6 +4,7 @@ import Input from '@/components/Input.vue';
 import { reactive, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import pb from '@/services/pb';
+import LinkButton from '@/components/LinkButton.vue';
 
 const isLoading = ref(false);
 const errorMessage = ref('');
@@ -107,9 +108,10 @@ async function handleOnSubmit() {
                 <Button class="w-full" type="submit" :disabled="isLoading">
                     {{ isLoading ? 'Registrando...' : 'Registrarse' }}
                 </Button>
-                <Button class="w-full" type="button" variant="secondary" @click="router.push('/login')">
+            
+                <LinkButton class="w-full" to="/login" variant="secondary">
                     Ya tengo una cuenta
-                </Button>
+                </LinkButton>
             </div>
 
         </form>
