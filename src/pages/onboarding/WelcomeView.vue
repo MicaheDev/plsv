@@ -1,7 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { questionary } from './utilities/questionary';
+import Button from '@/components/Button.vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -9,97 +10,106 @@ const router = useRouter()
 const actualStep = computed(() => route.query.welcomeStep)
 const steps = Object.keys(questionary)
 
-const userResponses = ref({
-    relationship: '',
-    lsvLevel: '',
-    dailyGoal: '',
-    audioMode: '',
-    uiAccessibility: '',
-    priorityVocabulary: ''
+// 1. Obtenemos el objeto de la pregunta actual según la URL
+const currentQuestionData = computed(() => {
+  if (!actualStep.value) return null;
+  return questionary[actualStep.value] || null;
 });
 
+// 2. Calculamos el índice actual dinámicamente
+const currentIndex = computed(() => {
+  return steps.indexOf(actualStep.value);
+});
 
-// Esta función ahora procesa el paso y redirige programáticamente
-function handleNextStep(currentIndex, currentKey) {
-    // 1. Validación (Opcional pero recomendada): 
-    // Si el usuario no ha seleccionado nada en este paso, no lo dejes avanzar
-    if (!userResponses.value[currentKey]) {
-        alert("Por favor, selecciona una opción antes de continuar.");
-        return;
-    }
+const userResponses = ref({
+  relationship: '',
+  lsvLevel: '',
+  dailyGoal: '',
+  audioMode: '',
+  uiAccessibility: '',
+  priorityVocabulary: ''
+});
 
-    const nextIndex = currentIndex + 1;
+function handleNextStep() {
+  const key = actualStep.value;
+  const idx = currentIndex.value;
 
-    // 2. Si ya respondimos la última pregunta, vamos a registro
-    if (steps.length === nextIndex) {
-        // Guardamos temporalmente en el localStorage para recuperarlo en la vista de /register
-        localStorage.setItem('temp_preferences_data', JSON.stringify(userResponses.value));
-        router.push("/register");
-        return;
-    }
+  if (!userResponses.value[key]) {
+    alert("Por favor, selecciona una opción antes de continuar.");
+    return;
+  }
 
-    // 3. Si por alguna razón el paso no existe, volveces al inicio
-    if (steps[nextIndex] == null) {
-        router.push("/welcome");
-        return;
-    }
+  const nextIndex = idx + 1;
 
-    // 4. Navegamos a la siguiente pregunta
-    router.push('/welcome?welcomeStep=' + steps[nextIndex]);
+  if (steps.length === nextIndex) {
+    localStorage.setItem('temp_preferences_data', JSON.stringify(userResponses.value));
+    router.push("/register");
+    return;
+  }
+
+  if (steps[nextIndex] == null) {
+    router.push("/welcome");
+    return;
+  }
+
+  router.push('/welcome?welcomeStep=' + steps[nextIndex]);
 }
 </script>
 
 <template>
-    <div class="c-welcome-container" v-if="!actualStep">
-        <h1>Bienvenido</h1>
-        <br>
-        <p>Te haremos 6 preguntas para personalizar tu experiencia.</p>
-        <br>
-        <RouterLink :to="'/welcome?welcomeStep=' + steps[0]">Siguiente</RouterLink>
-    </div>
+  <!-- Pantalla de Bienvenida (Paso inicial sin query) -->
+  <div 
+    v-if="!actualStep" 
+    class="w-full h-full flex flex-col justify-center items-center max-w-2xl mx-auto p-4 gap-4"
+  >
+    <h1 class="text-4xl font-black">Bienvenido</h1>
+    <p class="text-lg text-center">Te haremos 6 preguntas para personalizar tu experiencia.</p>
+    <Button 
+      class="w-full" 
+      variant="primary"
+      @click="router.push('/welcome?welcomeStep=' + steps[0])"
+    >
+      Siguiente
+    </Button>
+  </div>
 
-    <div  v-for="([key, value], i) in Object.entries(questionary)" :key="key">
-
-        <div class="c-container" v-if="actualStep === key">
-            <form @submit.prevent="handleNextStep(i, key)">
-                <h3>
-                    {{ value.question }}
-                </h3>
-                <br>
-                <div v-for="option in value.options" :key="option.value">
-                    <label>
-                        <input type="radio" :name="key" :value="option.value.toUpperCase()" v-model="userResponses[key]" required>
-
-                        {{ option.label }}
-                    </label>
-                </div>
-                <br>
-                <button type="submit">Siguiente</button>
-            </form>
+  <!-- Paso del Cuestionario (Único contenedor activo) -->
+  <div 
+    v-else-if="currentQuestionData" 
+    class="w-full h-full flex flex-col justify-center items-center max-w-2xl mx-auto p-4 gap-4"
+  >
+    <form 
+      class="w-full h-full flex flex-col justify-center max-lg:justify-between gap-4"
+      @submit.prevent="handleNextStep"
+    >
+      <div class="flex flex-col gap-3">
+        <h3 class="font-bold text-xl">
+          {{ currentQuestionData.question }}
+        </h3>
+        
+        <div class="w-full flex flex-col gap-2">
+            <div 
+          v-for="option in currentQuestionData.options" 
+          :key="option.value"
+          class="flex items-center gap-2"
+        >
+          <label class="flex items-center gap-2 cursor-pointer w-full p-2 rounded-xl hover:bg-gray-100 transition-colors">
+            <input 
+              type="radio" 
+              :name="actualStep" 
+              :value="option.value.toUpperCase()"
+              v-model="userResponses[actualStep]" 
+              required
+            >
+            <span>{{ option.label }}</span>
+          </label>
         </div>
-    </div>
+        </div>
+      </div>
 
+      <Button class="w-full" type="submit" variant="primary">
+        Siguiente
+      </Button>
+    </form>
+  </div>
 </template>
-
-<style scoped>
-.c-welcome-container{
-    width: 100%;
-    height: 100svh;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
-}
-
-p {
-    max-width: 80%;
-    text-align: center;
-}
-
-button {
-    padding: 20px;
-}
-</style>

@@ -34,13 +34,14 @@ async function handleOnSubmit() {
 
 <template>
 
-    <div class="w-full h-svh flex flex-col justify-center items-center p-8 box-border">
-        <form @submit.prevent="handleOnSubmit" class="flex flex-col justify-between h-full">
+    <div class="w-full h-full flex flex-col justify-center items-center max-w-2xl mx-auto p-4">
+        <form @submit.prevent="handleOnSubmit"
+            class="w-full h-full flex flex-col justify-center max-lg:justify-between gap-4">
             <div class="flex flex-col gap-3">
                 <div class="flex flex-col gap-2">
-                    <img src="/logo.png" alt="Logo de la aplicación" class="w-25 h-25 mx-auto">
                     <h1 class="text-3xl font-black text-center">Iniciar sesión</h1>
-                    <p class="text-fg-muted font-medium text-clip text-sm">Bienvenido de vuelta. Por favor, ingresa tus
+                    <p class="text-fg-muted font-medium text-center text-sm">Bienvenido de vuelta. Por favor, ingresa
+                        tus
                         credenciales.</p>
                 </div>
                 <Input type="email" v-model="form.email" required placeholder="pedrito@gmail.com" autocomplete="email">
@@ -59,7 +60,8 @@ async function handleOnSubmit() {
             </div>
 
 
-            <div class="flex flex-col gap-4">
+            <div class="w-full flex flex-row gap-3 max-lg:flex-col justify-center">
+
                 <Button class="w-full" type="submit" variant="primary">
                     {{ isLoading ? 'Accediendo...' : 'Acceder' }}
                 </Button>

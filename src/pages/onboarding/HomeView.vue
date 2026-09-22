@@ -1,89 +1,68 @@
 <template>
-  <div class="w-full h-svh flex flex-col overflow-hidden">
-    <div ref="scrollRef" @scroll="handleScroll"
-      class="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none [&::-webkit-scrollbar]:hidden">
-      <div v-for="slide in slides" :key="slide.id"
-        class="w-full h-full shrink-0 snap-center flex flex-col justify-center items-center gap-8 px-8 pt-8 pb-2 box-border">
-        <div class="flex flex-col gap-2">
-          <h1 class="text-left text-3xl font-black m-0">{{ slide.title }}</h1>
-          <p class="text-fg-muted font-medium text-clip text-sm">Lorem ipsum dolor, sit amet consectetur adipisicing elit.</p>
-        </div>
-        <img :class="['rounded-4xl bg-[#dadada]', slide.className]" :src="slide.imgSrc" alt="Ilustración de la lección" />
+  <div class="w-full h-full max-w-2xl mx-auto flex flex-col justify-center max-lg:justify-between gap-4 items-center p-4">
+
+    <!-- Sección principal: Texto e imágenes -->
+    <div class="flex items-center max-lg:flex-col max-lg:justify-between gap-8 max-lg:gap-2">
+      <div class="w-full flex flex-col gap-2">
+        <h2 class="text-3xl text-center font-black">Bienvenidos a LinguSeñas</h2>
+        <p class="text-gray-700 max-lg:hidden text-justify">
+          LinguSeñas es un proyecto socio-tecnológico contextualizado en la U.E. Bartolomé Salom en Puerto Cabello, concebido para reducir las barreras de comunicación entre la comunidad sorda y los oyentes mediante herramientas digitales interactivas.
+          Su propósito principal es facilitar el aprendizaje, práctica y difusión de la Lengua de Señas Venezolana (LSV) en el entorno escolar, integrando a estudiantes, docentes y representantes en un espacio inclusivo.
+        </p>
+      </div>
+
+      <!-- Grid de imágenes / Collage -->
+      <div class="w-full grid grid-cols-2 gap-2 p-2 max-w-xl mx-auto">
+        <!-- Primera imagen: ocupa las 2 columnas -->
+        <img
+          src="/img/ue/1.png"
+          alt="LinguSeñas 1"
+          class="col-span-2 aspect-square max-lg:aspect-video object-cover object-top w-full rounded-lg" 
+        />
+
+        <!-- Segunda imagen: columna 1 -->
+        <img
+          src="/img/ue/2.png"
+          alt="LinguSeñas 2"
+          class="aspect-square object-cover w-full rounded-lg" 
+        />
+
+        <!-- Tercera imagen: columna 2 -->
+        <img
+          src="/img/ue/3.png"
+          alt="LinguSeñas 3"
+          class="aspect-square object-cover w-full rounded-lg" 
+        />
       </div>
     </div>
 
-    <div class="w-full h-min flex flex-col justify-center items-center gap-4 px-8 pb-8 pt-2 box-border">
-      <div class="flex gap-2">
-        <div v-for="(_, index) in slides" :key="index" :class="[
-          'h-2 rounded-full transition-all duration-300 ease-in-out',
-          slideActual === index ? 'w-8 bg-fg border-fg' : 'w-2 bg-stroke'
-        ]" />
-      </div>
-
-
-      <Button class="w-full" type="button" variant="primary" @click="manejarSiguiente">
-        {{ slideActual === slides.length - 1 ? "Empezar" : "Siguiente" }}
+    <!-- Botones de Acción -->
+    <div class="w-full flex flex-row gap-3 max-lg:flex-col justify-center">
+      <Button 
+        class="w-full" 
+        type="button" 
+        variant="primary" 
+        @click="router.push('/login')"
+      >
+        Iniciar Sesión
       </Button>
-      <Button class="w-full justify-between" type="button" variant="secondary" @click="router.push('/login')">
-        Ya tengo una cuenta
+
+      <Button 
+        class="w-full" 
+        type="button" 
+        variant="secondary" 
+        @click="router.push('/welcome')"
+      >
+        Crear una cuenta
       </Button>
     </div>
+
   </div>
 </template>
 
 <script setup>
 import Button from '@/components/Button.vue'
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-// Definición de las diapositivas con clases de Tailwind
-const slides = [
-  {
-    id: "1",
-    title: "¡Hola! Vamos a aprender señas juntos",
-    imgSrc: "img/1.png",
-    className: "w-full h-1/2 object-cover"
-  },
-  {
-    id: "2",
-    title: "Mira el video y repite el movimiento",
-    imgSrc: "img/2.gif",
-    className: "w-full h-1/2 object-contain"
-  },
-  {
-    id: "3",
-    title: "Usa tu cámara para que te ayudemos",
-    imgSrc: "img/3.jpg",
-    className: "w-full h-1/2 object-cover"
-  }
-]
-
-// Estados reactivos
-const slideActual = ref(0)
-const scrollRef = ref(null)
-
-// Enrutador de Vue Router
 const router = useRouter()
-
-// Detectar posición del scroll
-const handleScroll = () => {
-  if (scrollRef.value) {
-    const index = Math.round(
-      scrollRef.value.scrollLeft / window.innerWidth
-    )
-    slideActual.value = index
-  }
-}
-
-// Lógica de navegación
-const manejarSiguiente = () => {
-  if (slideActual.value < slides.length - 1) {
-    scrollRef.value?.scrollTo({
-      left: window.innerWidth * (slideActual.value + 1)
-    })
-  } else {
-    console.log("Redireccionando al área de aprendizaje...")
-    router.push('/welcome')
-  }
-}
 </script>

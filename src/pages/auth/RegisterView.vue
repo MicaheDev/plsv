@@ -1,4 +1,6 @@
 <script setup>
+import Button from '@/components/Button.vue';
+import Input from '@/components/Input.vue';
 import { reactive, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import pb from '@/services/pb';
@@ -42,7 +44,7 @@ async function handleOnSubmit() {
             passwordConfirm: form.passwordConfirm,
             role: form.role,
             emailVisibility: true,
-            
+
             // 📍 DATOS EXTRA PARA EL HOOK:
             level_preference: onboardingPreferences.value.lsvLevel || "NONE",
             daily_goal: parseInt(onboardingPreferences.value.dailyGoal) || 10,
@@ -66,70 +68,51 @@ async function handleOnSubmit() {
 
 <template>
     <!-- Mensaje de Error -->
-    <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
-        {{ errorMessage }}
-    </div>
-    <div class="c-register-container">
-        <form @submit.prevent="handleOnSubmit">
-            <h1>Register</h1>
-            <br>
 
-            <label for="full_name">Nombre completo</label><br>
-            <input type="text" id="full_name" v-model="form.fullName" minlength="3" required
-                placeholder="Pedro Pérez"><br>
-            <br>
+    <div class="w-full h-full flex flex-col justify-center items-center max-w-2xl mx-auto p-4">
 
-            <label for="email">Correo electrónico</label><br>
-            <input type="email" id="email" v-model="form.email" required placeholder="pedrito20@example.com"><br>
-            <br>
+        <form @submit.prevent="handleOnSubmit"
+            class="w-full h-full flex flex-col justify-center max-lg:justify-between gap-4">
+            <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-2xl font-black text-center">Crear una Cuenta</h1>
+                    <p class="text-fg-muted font-medium text-center text-sm">Bienvenido de vuelta. Por favor, ingresa
+                        tus
+                        credenciales.</p>
+                </div>
 
-            <label for="password">Contraseña</label><br>
-            <input type="password" id="password" v-model="form.password" minlength="8" required placeholder="••••"><br>
-            <br>
+                <Input type="text" v-model="form.fullName" minlength="3" required placeholder="Jose Perez">
+                    Nombre completo
+                </Input>
 
-            <label for="confirm-password">Confirmar Contraseña</label><br>
-            <input type="password" id="confirm-password" v-model="form.passwordConfirm" minlength="8" required placeholder="••••"><br>
-            <br>
+                <Input type="email" v-model="form.email" required placeholder="pedrito@gmail.com" autocomplete="email">
+                    E-mail
+                </Input>
 
-            <button type="submit" :disabled="isLoading">
-                {{ isLoading ? 'Registrando...' : 'Registrarse e Ingresar' }}
-            </button>
+                <Input type="password" v-model="form.password" required placeholder="••••••••">
+                    Contraseña
+                </Input>
+
+                <Input type="password" v-model="form.passwordConfirm" required placeholder="••••••••">
+                    Confirmar Contraseña
+                </Input>
+
+                <div v-if="errorMessage"
+                    class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
+                    {{ errorMessage }}
+                </div>
+            </div>
+            <div class="w-full flex flex-row gap-3 max-lg:flex-col justify-center">
+
+                <Button class="w-full" type="submit" :disabled="isLoading">
+                    {{ isLoading ? 'Registrando...' : 'Registrarse' }}
+                </Button>
+                <Button class="w-full" type="button" variant="secondary" @click="router.push('/login')">
+                    Ya tengo una cuenta
+                </Button>
+            </div>
+
         </form>
-
-        <br>
-        <RouterLink to="login">Ya tengo una cuenta</RouterLink>
 
     </div>
 </template>
-
-<style scoped>
-.c-register-container {
-    width: 100%;
-    height: 100svh;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
-}
-
-h1 {
-    text-align: center;
-}
-
-form {
-    width: 100%;
-}
-
-input {
-    width: 100%;
-    padding: 10px 8px;
-}
-
-button {
-    width: 100%;
-    padding: 20px;
-}
-</style>
