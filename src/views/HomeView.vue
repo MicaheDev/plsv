@@ -22,14 +22,14 @@ import LinkButton from '@/components/LinkButton.vue';
       <!-- Grid de imágenes / Collage -->
       <div class="w-full grid grid-cols-2 gap-2 p-2 max-w-xl mx-auto">
         <!-- Primera imagen: ocupa las 2 columnas -->
-        <img src="/img/ue/1.png" alt="LinguSeñas 1"
+        <img src="/img/1.png" alt="LinguSeñas 1"
           class="col-span-2 aspect-square max-lg:aspect-video object-cover object-top w-full rounded-lg" />
 
         <!-- Segunda imagen: columna 1 -->
-        <img src="/img/ue/2.png" alt="LinguSeñas 2" class="aspect-square object-cover w-full rounded-lg" />
+        <img src="/img/2.png" alt="LinguSeñas 2" class="aspect-square object-cover w-full rounded-lg" />
 
         <!-- Tercera imagen: columna 2 -->
-        <img src="/img/ue/3.png" alt="LinguSeñas 3" class="aspect-square object-cover w-full rounded-lg" />
+        <img src="/img/3.png" alt="LinguSeñas 3" class="aspect-square object-cover w-full rounded-lg" />
       </div>
     </div>
 

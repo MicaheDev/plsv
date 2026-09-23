@@ -3,6 +3,7 @@ import Button from '@/components/Button.vue';
 import Input from '@/components/Input.vue';
 import LinkButton from '@/components/LinkButton.vue';
 import pb from '@/services/pb';
+import { formatPocketBaseError } from '@/utilities/errorMapper';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -24,7 +25,7 @@ async function handleOnSubmit() {
 
         router.push('/learning');
     } catch (error) {
-        errorMessage.value = error.message || 'Error al iniciar sesión.';
+        errorMessage.value = formatPocketBaseError(error.message) || 'Error al iniciar sesión.';
 
     } finally {
         isLoading.value = false;
@@ -54,7 +55,7 @@ async function handleOnSubmit() {
                     Contraseña
                 </Input>
                 <div v-if="errorMessage"
-                    class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
+                    class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl text-sm">
                     {{ errorMessage }}
                 </div>
 

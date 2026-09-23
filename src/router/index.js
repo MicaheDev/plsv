@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { authGuard } from "./guards/authGuard";
 import OnboardingLayout from "@/layouts/OnboardingLayout.vue";
-import MainLayout from "@/layouts/MainLayout.vue";
+import MainLayout from "@/layouts/DashboardLayout.vue";
+import DashboardLayout from "@/layouts/DashboardLayout.vue";
 
 const routes = [
   {
@@ -11,34 +12,53 @@ const routes = [
       {
         path: "/",
         name: "Home",
-        component: () => import("@/pages/onboarding/HomeView.vue"),
+        component: () => import("@/views/HomeView.vue"),
       },
       {
         path: "/welcome",
         name: "Welcome",
-        component: () => import("@/pages/onboarding/WelcomeView.vue"),
+        component: () => import("@/views/WelcomeView.vue"),
       },
       {
         path: "/login",
         name: "Login",
-        component: () => import("@/pages/auth/LoginView.vue"),
+        component: () => import("@/views/LoginView.vue"),
       },
       {
         path: "/register",
         name: "Register",
-        component: () => import("@/pages/auth/RegisterView.vue"),
+        component: () => import("@/views/RegisterView.vue"),
       },
     ],
   },
   {
     path: "/",
-    meta: { layout: MainLayout, requiresAuth: true },
+    meta: { layout: DashboardLayout, requiresAuth: true },
     children: [
       {
         path: "/learning",
         name: "Learning",
-        component: () => import("@/pages/learning/LearningView.vue"),
-        
+        component: () => import("@/views/LearningView.vue"),
+      },
+      {
+        path: "/dictionary",
+        name: "Dictionary",
+        component: () => import("@/views/DictionaryView.vue"),
+      },
+      {
+        path: "/ranking",
+        name: "Ranking",
+        component: () => import("@/views/RankingView.vue"),
+      },
+      {
+        path: "/store",
+        name: "Store",
+        component: () => import("@/views/StoreView.vue"),
+      },
+      {
+        path: "/profile",
+        name: "Profile",
+        component: () => import("@/views/ProfileView.vue"),
       },
     ],
   },

@@ -10,7 +10,7 @@
 </script>
 
 <template>
-    <div class="p-6">
+    <div class="w-full h-full p-6 overflow-hidden">
         <h1>Bienvenido</h1>
         <br>
         <button @click="logout">Cerrar sesion</button>
