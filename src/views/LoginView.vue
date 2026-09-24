@@ -13,7 +13,7 @@ const errorMessage = ref('');
 const router = useRouter();
 
 const form = reactive({
-    email: "",
+    identity: "",
     password: "",
 });
 
@@ -21,7 +21,7 @@ async function handleOnSubmit() {
     isLoading.value = true;
 
     try {
-        await pb.collection('users').authWithPassword(form.email, form.password);
+        await pb.collection('users').authWithPassword(form.identity, form.password);
 
         router.push('/learning');
     } catch (error) {
@@ -46,8 +46,9 @@ async function handleOnSubmit() {
                         tus
                         credenciales.</p>
                 </div>
-                <Input type="email" v-model="form.email" required placeholder="pedrito@gmail.com" autocomplete="email">
-                    E-mail
+                <!-- Input de Identidad (Username o E-mail) -->
+                <Input type="text" v-model="form.identity" required placeholder="pedrito o pedrito@gmail.com" autocomplete="username">
+                    Usuario o E-mail
                 </Input>
 
                 <!-- Input para Contraseña -->

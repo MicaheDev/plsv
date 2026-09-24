@@ -19,7 +19,7 @@ export function authGuard(to) {
 
   // 3. Verificación de Rol (Admin / Studio)
   if (requiresAdmin) {
-    if (!isAuthenticated || currentUser?.role !== "ADMIN") {
+    if (!isAuthenticated || (currentUser?.role !== "ADMIN" && currentUser?.role !== "TEACHER")) {
       return { name: "Learning" };
     }
   }

@@ -62,6 +62,12 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/studio",
+    meta: {requiresAuth: true, requiresAdmin: true},
+    name: "Studio",
+    component: () => import("@/views/StudioView.vue")
+  }
 ];
 
 const router = createRouter({

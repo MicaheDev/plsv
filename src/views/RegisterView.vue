@@ -13,6 +13,7 @@ const router = useRouter();
 
 const form = reactive({
     fullName: "",
+    username: "", 
     email: "",
     password: "",
     passwordConfirm: "",
@@ -40,6 +41,7 @@ async function handleOnSubmit() {
         // Enviar todo en UNA SOLA petición de creación de usuario:
         await pb.collection('users').create({
             full_name: form.fullName,
+            username: form.username,
             email: form.email,
             password: form.password,
             passwordConfirm: form.passwordConfirm,
@@ -53,7 +55,7 @@ async function handleOnSubmit() {
         });
 
         // Iniciar sesión
-        await pb.collection('users').authWithPassword(form.email, form.password);
+        await pb.collection('users').authWithPassword(form.username, form.password);
 
         localStorage.removeItem('temp_preferences_data');
         router.push('/learning');
@@ -70,7 +72,7 @@ async function handleOnSubmit() {
 <template>
     <!-- Mensaje de Error -->
 
-    <div class="w-full h-full flex flex-col justify-center items-center max-w-2xl mx-auto p-4">
+    <div class="w-full min-h-full flex flex-col justify-center items-center max-w-2xl mx-auto p-4">
 
         <form @submit.prevent="handleOnSubmit"
             class="w-full h-full flex flex-col justify-center max-lg:justify-between gap-4">
@@ -84,6 +86,11 @@ async function handleOnSubmit() {
 
                 <Input type="text" v-model="form.fullName" minlength="3" required placeholder="Jose Perez">
                     Nombre completo
+                </Input>
+
+                <!-- Input para Nombre de Usuario -->
+                <Input type="text" v-model="form.username" minlength="3" required placeholder="joseperez" autocomplete="username">
+                    Nombre de usuario
                 </Input>
 
                 <Input type="email" v-model="form.email" required placeholder="pedrito@gmail.com" autocomplete="email">
