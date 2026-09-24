@@ -1,0 +1,1 @@
+import{_ as o,c as s,b as t,o as n}from"./index-nEyQUZNy.js";const r={},c={class:"w-full h-full p-6 overflow-hidden"};function l(a,e){return n(),s("div",c,[...e[0]||(e[0]=[t("h1",null,"Tienda",-1)])])}const f=o(r,[["render",l]]);export{f as default};

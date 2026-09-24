@@ -1,0 +1,1 @@
+import{_ as e,c as o,o as n}from"./index-nEyQUZNy.js";const s={};function c(r,a){return n(),o("h1",null,"Editor Contenido para agregar niveles, lecciones, señas aquellos que tengan permisos como el ADMIN y los DOCENTES")}const l=e(s,[["render",c]]);export{l as default};

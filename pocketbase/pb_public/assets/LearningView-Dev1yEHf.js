@@ -1,0 +1,1 @@
+import{c as o,b as s,i as t,o as r}from"./index-nEyQUZNy.js";const a={class:"w-full h-full p-6 overflow-hidden"},c={__name:"LearningView",setup(l){return t(),(n,e)=>(r(),o("div",a,[...e[0]||(e[0]=[s("h1",null,"AQUI VAN LOS NIVELES Y LECCIONES",-1)])]))}};export{c as default};

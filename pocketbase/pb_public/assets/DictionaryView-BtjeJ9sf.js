@@ -1,0 +1,1 @@
+import{_ as o,c,b as n,o as r}from"./index-nEyQUZNy.js";const s={},t={class:"w-full h-full p-6 overflow-hidden"};function a(i,e){return r(),c("div",t,[...e[0]||(e[0]=[n("h1",null," Diccionario ",-1)])])}const f=o(s,[["render",a]]);export{f as default};

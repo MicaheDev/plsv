@@ -35,3 +35,26 @@ onRecordCreateRequest((e) => {
         console.log("Error detallado en user_game_stats:", err);
     }
 }, "users");
+
+// 2. Servir la PWA / Vue SPA desde la carpeta pb_public
+routerAdd("GET", "/", (e) => {
+    let reqPath = e.request.url.path;
+
+    // Si es petición a la API o al Admin Dashboard, ceder el control a PocketBase
+    if (reqPath.startsWith("/api/") || reqPath.startsWith("/_/")) {
+        return e.next();
+    }
+
+    const publicFS = $os.dirFS("./pb_public");
+
+    // Eliminar barras diagonales iniciales para compatibilidad con Go FS
+    let relativePath = reqPath === "/" ? "index.html" : reqPath.replace(/^\/+/, "");
+
+    try {
+        // Intenta servir el archivo físico estático (ej: /assets/index-xxx.js, manifest, sw.js)
+        return e.fileFS(publicFS, relativePath);
+    } catch (_) {
+        // Si no existe el archivo (rutas de Vue Router como /dashboard, /aprender), devuelve index.html
+        return e.fileFS(publicFS, "index.html");
+    }
+});
