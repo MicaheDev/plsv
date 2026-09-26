@@ -31,7 +31,7 @@ defineOptions({
 <template>
   <div class="flex flex-col gap-2 w-full">
     <!-- Label opcional solo si se pasa contenido por el slot -->
-    <label v-if="$slots.default" class="font-black text-fg">
+    <label v-if="$slots.default" class="font-black">
       <slot />
     </label>
 
@@ -41,7 +41,7 @@ defineOptions({
       :type="props.type"
       :placeholder="props.placeholder"
       :class="clsx(
-        'px-4 py-2 rounded-2xl w-full text-base font-bold border-2 border-stroke bg-bg-subtle text-fg placeholder:text-fg-muted focus:outline-none focus:border-stroke-strong transition-colors',
+        'px-4 py-2 rounded-2xl w-full text-base font-bold border-2 border-slate-200 bg-gray-50 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 transition-colors',
         props.class
       )"
     />

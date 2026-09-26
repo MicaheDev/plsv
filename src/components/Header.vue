@@ -41,7 +41,7 @@ onMounted(async () => {
           <PhShield :size="20" />
           {{ stats.current_level }}
         </span>
-        <span class="inline-flex items-center gap-1 px-2 py-1 bg-orange-500 font-bold border-2 rounded-xl">
+        <span class="inline-flex items-center gap-1 px-2 py-1 bg-orange-500 text-white font-bold border-2 rounded-xl">
           <PhFire :size="20" />
           {{ stats.current_streak }}
         </span>
@@ -50,7 +50,7 @@ onMounted(async () => {
           <PhSketchLogo :size="20" />
           {{ stats.total_score }}
         </span>
-        <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-400 font-bold border-2 rounded-xl">
+        <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white font-bold border-2 rounded-xl">
 
           <PhHeart :size="20" />
           {{ stats.current_hearts }}

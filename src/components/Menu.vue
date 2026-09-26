@@ -31,15 +31,15 @@ const links = [
 
 <template>
     <nav
-        class=" flex flex-col gap-2 max-lg:flex-row w-75 border-r-2 border-stroke p-4 max-lg:h-20 max-lg:items-center max-lg:justify-between max-lg:w-full max-lg:border-0 max-lg:border-t-2 h-full max-lg:flex max-lg:shrink-0">
+        class=" flex flex-col gap-2 max-lg:flex-row w-75 border-r-2 border-slate-200 p-4 max-lg:h-20 max-lg:items-center max-lg:justify-between max-lg:w-full max-lg:border-0 max-lg:border-t-2 h-full max-lg:flex max-lg:shrink-0">
         <RouterLink to="/" class="inline-flex items-center gap-2 max-lg:hidden mb-2">
             <img src="/logo.png" class="w-12" />
             <h1 class="font-black text-xl">LinguSeñas</h1>
         </RouterLink>
 
         <RouterLink v-for="link in links" :key="link.path" :to="link.path"
-            class="px-4 py-1 max-lg:p-2.5 rounded-2xl text-nowrap border-2 border-transparent inline-flex text-base max-lg:w-auto w-full items-center max-lg:justify-center gap-2 uppercase font-bold text-fg-muted hover:text-fg cursor-pointer"
-            active-class="bg-primary hover:text-white text-primary-fg border-primary-hover!">
+            class="px-4 py-1 max-lg:p-2.5 rounded-2xl text-nowrap border-2 border-transparent inline-flex text-base max-lg:w-auto w-full items-center max-lg:justify-center gap-2 uppercase font-bold text-gray-500 hover:text-gray-700 cursor-pointer"
+            active-class="bg-blue-600 hover:text-white text-white border-blue-800!">
             <component :is="link.icon" :size="32" />
             <span class="max-lg:hidden">{{ link.label }}</span>
         </RouterLink>

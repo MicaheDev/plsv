@@ -61,6 +61,6 @@ body {
 
 @layer base {
   body {
-    @apply font-montserrat bg-bg text-fg;
+    @apply font-montserrat bg-white text-gray-900;
   }
 }

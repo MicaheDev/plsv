@@ -79,7 +79,7 @@ async function handleOnSubmit() {
             <div class="flex flex-col gap-3">
                 <div class="flex flex-col gap-2">
                     <h1 class="text-2xl font-black text-center">Crear una Cuenta</h1>
-                    <p class="text-fg-muted font-medium text-center text-sm">Bienvenido de vuelta. Por favor, ingresa
+                    <p class="text-gray-500 font-medium text-center text-sm">Bienvenido de vuelta. Por favor, ingresa
                         tus
                         credenciales.</p>
                 </div>
