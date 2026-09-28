@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { authGuard } from "./guards/authGuard";
 import OnboardingLayout from "@/layouts/OnboardingLayout.vue";
-import MainLayout from "@/layouts/DashboardLayout.vue";
 import DashboardLayout from "@/layouts/DashboardLayout.vue";
+import StudioLayout from "@/layouts/StudioLayout.vue";
 
 const routes = [
   {
@@ -63,10 +63,20 @@ const routes = [
     ],
   },
   {
-    path: "/studio",
-    meta: {requiresAuth: true, requiresAdmin: true},
-    name: "Studio",
-    component: () => import("@/views/StudioView.vue")
+    path: "/",
+    meta: { layout: StudioLayout,requiresAuth: true, requiresAdmin: true},
+    children: [
+      {
+        path: "/studio",
+        name: "Studio",
+        component: () => import("@/views/StudioView.vue")
+      },
+       {
+        path: "/studio/dictionary",
+        name: "DictionaryStudio",
+        component: () => import("@/views/DictionaryStudioView.vue")
+      }
+    ]
   }
 ];
 
