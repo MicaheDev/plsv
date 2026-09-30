@@ -32,6 +32,7 @@ const emit = defineEmits(["click"]);
           'bg-blue-800!': props.variant === 'primary',
           'bg-blue-800': props.variant === 'secondary',
           'bg-red-800': props.variant === 'danger',
+          'bg-teal-800': props.variant === 'studio',
         },
         'rounded-2xl w-fit',
         { 'w-full': props.class.includes('w-full') },
@@ -42,13 +43,15 @@ const emit = defineEmits(["click"]);
       :type="props.type"
       :class="
         clsx(
-          'px-4 py-2 rounded-2xl text-nowrap inline-flex text-base items-center justify-center gap-2 uppercase font-bold border-2 -translate-y-1 hover:translate-y-0 active:translate-y-0 transition-transform duration-150 cursor-pointer',
+          'px-4 py-2 rounded-2xl text-nowrap inline-flex text-base items-center justify-center gap-2 uppercase font-bold border-2 -translate-y-0.5 hover:translate-y-0 active:translate-y-0 transition-transform duration-150 cursor-pointer',
           {
             'bg-blue-500 text-white border-blue-800':
               props.variant === 'primary',
             'bg-secondary text-blue-800  border-blue-800':
               props.variant === 'secondary',
             'bg-red-500 text-white border-red-800': props.variant === 'danger',
+            'bg-teal-500 text-white border-teal-800':
+              props.variant === 'studio',
           },
           props.class,
         )

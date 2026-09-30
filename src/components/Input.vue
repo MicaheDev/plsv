@@ -1,30 +1,34 @@
 <script setup>
-import clsx from 'clsx';
+import clsx from "clsx";
 
 // Habilita el soporte nativo para v-model en Vue 3.4+
 const model = defineModel({
   type: [String, Number],
-  default: ''
+  default: "",
 });
 
 const props = defineProps({
   type: {
     type: String,
-    default: 'text'
+    default: "text",
+  },
+  variant: {
+    type: String,
+    default: "primary",
   },
   placeholder: {
     type: String,
-    default: ''
+    default: "",
   },
   class: {
     type: String,
-    default: ''
-  }
+    default: "",
+  },
 });
 
 // Desactivamos la herencia automática para aplicar atributos directamente al <input>
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 });
 </script>
 
@@ -40,10 +44,16 @@ defineOptions({
       v-model="model"
       :type="props.type"
       :placeholder="props.placeholder"
-      :class="clsx(
-        'px-4 py-2 rounded-2xl w-full text-base font-bold border-2 border-slate-200 bg-gray-50 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 transition-colors',
-        props.class
-      )"
+      :class="
+        clsx(
+          'px-4 py-2 rounded-2xl w-full text-base font-bold border-2 border-slate-200 bg-gray-50 placeholder:text-gray-500 focus:outline-none  transition-colors',
+          {
+            'focus:border-blue-500': props.variant === 'primary',
+            'focus:border-teal-600': props.variant === 'studio',
+          },
+          props.class,
+        )
+      "
     />
   </div>
 </template>

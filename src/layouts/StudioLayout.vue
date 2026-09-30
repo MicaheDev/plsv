@@ -86,7 +86,7 @@ const links = [
       >
         <img src="/logo.png" class="w-12" />
         <h1 class="font-black text-xl">LinguSeñas</h1>
-        <h2 class="font-black text-amber-500 text-2xl absolute inset-x-0 -bottom-3.5 translate-x-1/2 -z-1">Studio</h2>
+        <h2 class="font-black text-teal-500 text-2xl absolute inset-x-0 -bottom-3.5 translate-x-1/2 -z-1">Studio</h2>
       </RouterLink>
 
       <RouterLink
@@ -94,7 +94,7 @@ const links = [
         :key="link.path"
         :to="link.path"
         class="px-4 py-1 max-lg:p-2.5 rounded-2xl text-nowrap border-2 border-transparent inline-flex text-base max-lg:w-auto w-full items-center max-lg:justify-center gap-2 uppercase font-bold text-gray-500 hover:text-gray-700 cursor-pointer"
-        active-class="bg-amber-600 hover:text-white text-white border-amber-800!"
+        active-class="bg-teal-600 hover:text-white text-white border-teal-800!"
       >
         <component :is="link.icon" :size="32" />
         <span class="max-lg:hidden">{{ link.label }}</span>
