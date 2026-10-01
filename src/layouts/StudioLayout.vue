@@ -2,15 +2,10 @@
 import pb from "@/services/pb";
 import { ref, onMounted } from "vue";
 import {
-  PhArrowFatLeft,
-  PhArrowLeft,
   PhArrowUDownLeft,
   PhBookBookmark,
-  PhCrownSimple,
-  PhHouseLine,
+  PhStudent,
   PhPencil,
-  PhStorefront,
-  PhUserGear,
 } from "@phosphor-icons/vue";
 
 const currentUser = ref(pb.authStore.record);
@@ -61,6 +56,11 @@ const links = [
     icon: PhBookBookmark,
     label: "Diccionario",
   },
+  {
+    path: "/studio/students",
+    icon: PhStudent,
+    label: "Estudiantes",
+  },
 ];
 </script>
 
@@ -69,7 +69,6 @@ const links = [
     <div
       class="w-full h-full flex flex-row-reverse max-lg:flex-col justify-center overflow-hidden"
     >
-     
       <main
         class="w-full overflow-hidden overflow-y-auto max-w-2xl h-full max-lg:max-w-none"
       >
@@ -86,7 +85,11 @@ const links = [
       >
         <img src="/logo.png" class="w-12" />
         <h1 class="font-black text-xl">LinguSeñas</h1>
-        <h2 class="font-black text-teal-500 text-2xl absolute inset-x-0 -bottom-3.5 translate-x-1/2 -z-1">Studio</h2>
+        <h2
+          class="font-black text-teal-500 text-2xl absolute inset-x-0 -bottom-3.5 translate-x-1/2 -z-1"
+        >
+          Studio
+        </h2>
       </RouterLink>
 
       <RouterLink

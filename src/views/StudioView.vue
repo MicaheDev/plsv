@@ -1,5 +1,6 @@
 <script setup>
 import Button from "@/components/Button.vue";
+import Input from "@/components/Input.vue";
 import Modal from "@/components/Modal.vue";
 import Select from "@/components/Select.vue";
 import pb from "@/services/pb";
@@ -11,12 +12,17 @@ import { reactive } from "vue";
 const form = reactive({
   SelectedLevel: "",
 });
+
+const addSectionForm = reactive({
+  title: "",
+  selectedLevel: "",
+});
 const isLoading = ref(false);
 const errorMessage = ref("");
 
 const sections = ref([]);
 
-const showSectionModalAdd = ref(false)
+const showSectionModalAdd = ref(false);
 
 const options = [
   {
@@ -42,7 +48,7 @@ async function handleOnSubmit() {
 
   try {
     const resultList = await pb.collection("sections").getList(1, 50, {
-      filter: `level = "${form.SelectedLevel.toUpperCase()}"`
+      filter: `level = "${form.SelectedLevel.toUpperCase()}"`,
     });
 
     sections.value = resultList.items;
@@ -51,6 +57,36 @@ async function handleOnSubmit() {
       formatPocketBaseError(error.message) || "Error al iniciar sesión.";
   } finally {
     isLoading.value = false;
+  }
+}
+
+async function handleAddSection() {
+
+  if(addSectionForm.title.trim() === "" || addSectionForm.selectedLevel.trim() === "") {
+    errorMessage.value = "Por favor, complete todos los campos.";
+    return;
+  }
+  isLoading.value = true;
+
+  try {
+    const newSection = {
+      title: addSectionForm.title,
+      level: addSectionForm.selectedLevel.toUpperCase(),
+    };
+
+    const createdSection = await pb.collection("sections").create(newSection);
+
+    if(form.SelectedLevel.toUpperCase() === addSectionForm.selectedLevel.toUpperCase()) {
+      sections.value.push(createdSection);
+    }
+  } catch (error) {
+    errorMessage.value =
+      formatPocketBaseError(error.message) || "Error al agregar sección.";
+  } finally {
+    isLoading.value = false;
+    addSectionForm.title = "";
+    addSectionForm.selectedLevel = "";
+    showSectionModalAdd.value = false;
   }
 }
 </script>
@@ -81,14 +117,16 @@ async function handleOnSubmit() {
       <hr class="border-slate-300" />
 
       <div v-if="sections.length > 0" class="flex flex-col gap-2">
-        <div v-for="(section, index) in sections" class="py-2 border-b-2 border-dashed flex items-center justify-between border-slate-300">
+        <div
+          v-for="(section, index) in sections"
+          class="py-2 border-b-2 border-dashed flex items-center justify-between border-slate-300"
+        >
           <h4>Seccion {{ index + 1 }}: {{ section.title }}</h4>
 
           <button class="w-10 h-10 inline-flex justify-center items-center">
             <PhDotsThreeVertical :size="25" />
           </button>
         </div>
-        
       </div>
       <p v-else>No hay secciones</p>
     </div>
@@ -96,7 +134,25 @@ async function handleOnSubmit() {
       Seleccione un nivel para empezar por favor...
     </p>
   </div>
-  <Modal v-model="showSectionModalAdd">
-    hola mundo
+  <Modal title="Agregar Sección" v-model="showSectionModalAdd">
+    <form class="flex flex-col w-full h-full gap-4" @submit.prevent="handleAddSection">
+      <div class="flex flex-col gap-2">
+        <Input type="text" v-model="addSectionForm.title" placeholder="Ingrese el título de la sección"
+          >Titulo de la sección</Input
+        >
+      </div>
+      <div class="flex flex-col gap-2">
+        <Select
+          variant="studio"
+          class="w-full"
+          v-model="addSectionForm.selectedLevel"
+          :options="options"
+        >
+          Seleccionar nivel de la sección
+        </Select>
+      </div>
+      <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
+      <Button type="submit" class="w-full" variant="studio"> Agregar Sección </Button>
+    </form>
   </Modal>
 </template>
