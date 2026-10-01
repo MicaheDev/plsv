@@ -1,0 +1,1 @@
+import{_ as o,c as t,b as l,o as a}from"./index-BaGKsqH3.js";const s={},c={class:"w-full min-h-full p-6 flex flex-col gap-6 max-w-2xl mx-auto"};function n(r,e){return a(),t("div",c,[...e[0]||(e[0]=[l("h1",null,"hola",-1)])])}const i=o(s,[["render",n]]);export{i as default};
