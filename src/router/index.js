@@ -60,6 +60,11 @@ const routes = [
         name: "Profile",
         component: () => import("@/views/ProfileView.vue"),
       },
+       {
+        path: "/sos",
+        name: "Sos",
+        component: () => import("@/views/SosView.vue"),
+      },
     ],
   },
   {

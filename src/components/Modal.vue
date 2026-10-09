@@ -1,6 +1,7 @@
 <script setup>
-import { PhX } from "@phosphor-icons/vue";
 import clsx from "clsx";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps({
   title: {
@@ -22,7 +23,7 @@ const isShowed = defineModel({ type: Boolean, default: false });
   >
     <header class="w-full flex justify-between items-center h-15 px-4 shrink-0 border-b-2 border-slate-200">
       <h4 class="font-black">{{ title }}</h4>
-        <button class="w-10 h-10 inline-flex justify-center rounded-xl items-center cursor-pointer hover:bg-slate-300" @click="isShowed = false"><PhX :size="25" /></button>
+        <button class="w-10 h-10 inline-flex justify-center rounded-xl items-center cursor-pointer hover:bg-slate-200" @click="isShowed = false"><FontAwesomeIcon :icon="faXmark" class="text-2xl" /></button>
     </header>
     <main class="w-full h-full p-6">
         <slot></slot>

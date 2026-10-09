@@ -1,12 +1,14 @@
 <script setup>
 import pb from "@/services/pb";
 import { ref, onMounted } from "vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
-  PhArrowUDownLeft,
-  PhBookBookmark,
-  PhStudent,
-  PhPencil,
-} from "@phosphor-icons/vue";
+  faBookBookmark,
+  faUserGear,
+  faReply,
+  faPencil,
+
+} from "@fortawesome/free-solid-svg-icons";
 
 const currentUser = ref(pb.authStore.record);
 const stats = ref(null);
@@ -19,7 +21,6 @@ onMounted(async () => {
   }
 
   try {
-    // Búsqueda con ID entre comillas
     const userId = currentUser.value.id;
     const gameStats = await pb
       .collection("user_game_stats")
@@ -43,22 +44,22 @@ onMounted(async () => {
 const links = [
   {
     path: "/profile",
-    icon: PhArrowUDownLeft,
+    icon: faReply,
     label: "Volver",
   },
   {
     path: "/studio",
-    icon: PhPencil,
+    icon: faPencil,
     label: "Studio",
   },
   {
     path: "/studio/dictionary",
-    icon: PhBookBookmark,
+    icon: faBookBookmark,
     label: "Diccionario",
   },
   {
     path: "/studio/students",
-    icon: PhStudent,
+    icon: faUserGear,
     label: "Estudiantes",
   },
 ];
@@ -96,10 +97,10 @@ const links = [
         v-for="link in links"
         :key="link.path"
         :to="link.path"
-        class="px-4 py-1 max-lg:p-2.5 rounded-2xl text-nowrap border-2 border-transparent inline-flex text-base max-lg:w-auto w-full items-center max-lg:justify-center gap-2 uppercase font-bold text-gray-500 hover:text-gray-700 cursor-pointer"
+        class="px-4 py-2 max-lg:p-2 rounded-2xl text-nowrap border-2 border-transparent inline-flex text-base max-lg:w-auto w-full items-center max-lg:justify-center gap-2 uppercase font-bold text-gray-500 hover:text-gray-700 cursor-pointer"
         active-class="bg-teal-600 hover:text-white text-white border-teal-800!"
       >
-        <component :is="link.icon" :size="32" />
+        <FontAwesomeIcon :icon="link.icon" class="text-2xl" />
         <span class="max-lg:hidden">{{ link.label }}</span>
       </RouterLink>
     </nav>

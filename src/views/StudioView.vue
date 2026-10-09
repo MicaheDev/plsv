@@ -1,11 +1,13 @@
 <script setup>
 import Button from "@/components/Button.vue";
+import DropdownMenu from "@/components/DropdownMenu.vue";
 import Input from "@/components/Input.vue";
 import Modal from "@/components/Modal.vue";
 import Select from "@/components/Select.vue";
 import pb from "@/services/pb";
 import { formatPocketBaseError } from "@/utilities/errorMapper";
-import { PhDotsThreeVertical, PhPlus } from "@phosphor-icons/vue";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { ref } from "vue";
 import { reactive } from "vue";
 
@@ -23,6 +25,7 @@ const errorMessage = ref("");
 const sections = ref([]);
 
 const showSectionModalAdd = ref(false);
+const showDropdownMenu = ref(false);
 
 const options = [
   {
@@ -48,7 +51,7 @@ async function handleOnSubmit() {
 
   try {
     const resultList = await pb.collection("sections").getList(1, 50, {
-      filter: `level = "${form.SelectedLevel.toUpperCase()}"`,
+      filter: `level = "${form.selectedLevel.toUpperCase()}"`,
     });
 
     sections.value = resultList.items;
@@ -61,8 +64,10 @@ async function handleOnSubmit() {
 }
 
 async function handleAddSection() {
-
-  if(addSectionForm.title.trim() === "" || addSectionForm.selectedLevel.trim() === "") {
+  if (
+    addSectionForm.title.trim() === "" ||
+    addSectionForm.selectedLevel.trim() === ""
+  ) {
     errorMessage.value = "Por favor, complete todos los campos.";
     return;
   }
@@ -76,7 +81,10 @@ async function handleAddSection() {
 
     const createdSection = await pb.collection("sections").create(newSection);
 
-    if(form.SelectedLevel.toUpperCase() === addSectionForm.selectedLevel.toUpperCase()) {
+    if (
+      form.selectedLevel.toUpperCase() ===
+      addSectionForm.selectedLevel.toUpperCase()
+    ) {
       sections.value.push(createdSection);
     }
   } catch (error) {
@@ -89,6 +97,21 @@ async function handleAddSection() {
     showSectionModalAdd.value = false;
   }
 }
+
+const handleEdit = (id, close) => {
+  console.log("Editar");
+  close(); 
+};
+
+const handleDelete = async (id, close) => {
+  const isDeleted = await pb.collection("sections").delete(id);
+
+  if (isDeleted) {
+    console.log("Sección eliminada exitosamente");
+    sections.value = sections.value.filter((section) => section.id !== id);
+    close();
+  }
+};
 </script>
 
 <template>
@@ -97,13 +120,13 @@ async function handleAddSection() {
       @change="handleOnSubmit"
       variant="studio"
       class="w-min"
-      v-model="form.SelectedLevel"
+      v-model="form.selectedLevel"
       :options="options"
     >
       Niveles Disponibles
     </Select>
 
-    <div class="flex flex-col gap-2" v-if="form.SelectedLevel != ''">
+    <div class="flex flex-col gap-2" v-if="form.selectedLevel != ''">
       <h2 class="font-black">Secciones</h2>
 
       <hr class="border-slate-300" />
@@ -111,7 +134,7 @@ async function handleAddSection() {
         Agregar Sección
 
         <template #icon>
-          <PhPlus :size="25" />
+          <FontAwesomeIcon :icon="faPlus" class="text-lg" />
         </template>
       </Button>
       <hr class="border-slate-300" />
@@ -119,13 +142,35 @@ async function handleAddSection() {
       <div v-if="sections.length > 0" class="flex flex-col gap-2">
         <div
           v-for="(section, index) in sections"
+          :key="section.id"
           class="py-2 border-b-2 border-dashed flex items-center justify-between border-slate-300"
         >
           <h4>Seccion {{ index + 1 }}: {{ section.title }}</h4>
 
-          <button class="w-10 h-10 inline-flex justify-center items-center">
-            <PhDotsThreeVertical :size="25" />
-          </button>
+          <DropdownMenu position="bottom-right">
+            <template #default="{ close }">
+              <ul class="flex flex-col gap-2">
+                <li>
+                  <button
+                    @click="handleEdit(section.id, close)"
+                    class="w-full font-bold text-left text-sm px-4 py-2 hover:bg-gray-100 rounded-lg"
+                  >
+                    Editar
+                  </button>
+                </li>
+                <hr class="border-slate-300" />
+
+                <li>
+                  <button
+                    @click="handleDelete(section.id, close)"
+                    class="w-full font-bold text-left text-sm text-red-500 px-4 py-2 hover:bg-gray-100 rounded-lg"
+                  >
+                    Eliminar
+                  </button>
+                </li>
+              </ul>
+            </template>
+          </DropdownMenu>
         </div>
       </div>
       <p v-else>No hay secciones</p>
@@ -135,9 +180,15 @@ async function handleAddSection() {
     </p>
   </div>
   <Modal title="Agregar Sección" v-model="showSectionModalAdd">
-    <form class="flex flex-col w-full h-full gap-4" @submit.prevent="handleAddSection">
+    <form
+      class="flex flex-col w-full h-full gap-4"
+      @submit.prevent="handleAddSection"
+    >
       <div class="flex flex-col gap-2">
-        <Input type="text" v-model="addSectionForm.title" placeholder="Ingrese el título de la sección"
+        <Input
+          type="text"
+          v-model="addSectionForm.title"
+          placeholder="Ingrese el título de la sección"
           >Titulo de la sección</Input
         >
       </div>
@@ -152,7 +203,9 @@ async function handleAddSection() {
         </Select>
       </div>
       <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
-      <Button type="submit" class="w-full" variant="studio"> Agregar Sección </Button>
+      <Button type="submit" class="w-full" variant="studio">
+        Agregar Sección
+      </Button>
     </form>
   </Modal>
 </template>
