@@ -60,11 +60,6 @@ const routes = [
         name: "Profile",
         component: () => import("@/views/ProfileView.vue"),
       },
-       {
-        path: "/sos",
-        name: "Sos",
-        component: () => import("@/views/SosView.vue"),
-      },
     ],
   },
   {
@@ -74,12 +69,12 @@ const routes = [
       {
         path: "/studio",
         name: "Studio",
-        component: () => import("@/views/StudioView.vue")
+        component: () => import("@/views/admin/StudioView.vue")
       },
        {
         path: "/studio/dictionary",
         name: "DictionaryStudio",
-        component: () => import("@/views/DictionaryStudioView.vue")
+        component: () => import("@/views/admin/DictionaryView.vue")
       }
     ]
   }

@@ -39,3 +39,6 @@ Cada archivo `.vue` que crees solo necesita esta estructura básica (HTML + Tail
 2. Crea o edita las vistas en `src/views/` o componentes en `src/components/`.
 3. Revisa los cambios en la app.
 4. Al terminar tu jornada, ejecuta `npm run acode-stop`.
+
+create, update and delete
+@request.auth.id != "" && (@request.auth.role = "ADMIN" || @request.auth.role = "TEACHER")

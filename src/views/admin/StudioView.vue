@@ -1,3 +1,3 @@
 <template>
-<h1>Emergencias</h1>
+Hola
 </template>

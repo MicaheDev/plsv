@@ -11,7 +11,6 @@ import {
   faBookBookmark,
   faCrown,
   faUserGear,
-  faTriangleExclamation,
   faShop,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -46,12 +45,7 @@ const links = [
     path: "/profile",
     icon: faUserGear,
     label: "Perfil",
-  },
-  {
-    path: "/sos",
-    icon: faTriangleExclamation,
-    label: "Emergencias",
-  },
+}
 ];
 
 onMounted(async () => {

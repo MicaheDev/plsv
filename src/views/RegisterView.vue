@@ -106,7 +106,7 @@ async function handleOnSubmit() {
                 </Input>
 
                 <div v-if="errorMessage"
-                    class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
+                    class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl text-sm">
                     {{ errorMessage }}
                 </div>
             </div>
