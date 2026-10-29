@@ -53,10 +53,10 @@ async function handleOnSubmit() {
           type="text"
           v-model="form.identity"
           required
-          placeholder="pedrito o pedrito@gmail.com"
+          placeholder="Ej: usuario01"
           autocomplete="username"
         >
-          Usuario o E-mail
+          Usuario
         </Input>
 
         <!-- Input para Contraseña -->

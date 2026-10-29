@@ -51,7 +51,7 @@ async function handleOnSubmit() {
             // 📍 DATOS EXTRA PARA EL HOOK:
             level_preference: onboardingPreferences.value.lsvLevel || "NONE",
             daily_goal: parseInt(onboardingPreferences.value.dailyGoal) || 10,
-            audio_mode: onboardingPreferences.value.audioMode || "FULL_AUDIO"
+            audio_profile: onboardingPreferences.value.audioMode || "FULL_AUDIO"
         });
 
         // Iniciar sesión

@@ -9,7 +9,6 @@ const questionary = {
     questionType: "single",
     options: [
       { label: "Soy Docente / Personal de la escuela", value: "teacher" },
-      { label: "Soy Representante / Familiar", value: "guest" },
       { label: "Soy Estudiante", value: "student" },
     ]
   },
@@ -22,16 +21,8 @@ const questionary = {
       { label: "Intermedio: Puedo entablar conversaciones muy sencillas.", value: "intermediate" }
     ]
   },
-  dailyGoal: {
-    question: "¿Cuánto tiempo deseas dedicarle al día?",
-    questionType: "single",
-    options: [
-      { label: "Relajado: 5 minutos al día.", value: "5" },
-      { label: "Normal: 10 minutos al día.", value: "10" },
-      { label: "Serio: 20 minutos al día.", value: "20" }
-    ]
-  },
-  audioMode: {
+
+  audioProfile: {
     question: "¿Cómo prefieres aprender hoy?",
     questionType: "single",
     options: [
@@ -47,16 +38,6 @@ const questionary = {
       { label: "Interfaz simplificada (sin animaciones y alto contraste).", value: "simplified" }
     ]
   },
-  priorityVocabulary: {
-    question: "¿Qué vocabulario te interesa priorizar primero?",
-    questionType: "single",
-    options: [
-      { label: "Vocabulario del Aula y Escuela (Útil para docentes)", value: "school" },
-      { label: "Emociones y Salud (Vital para mediar en crisis)", value: "health" },
-      { label: "Expresiones Cotidianas y Hogar", value: "home" },
-      { label: "Cultura y Festividades (Tradiciones y religión)", value: "culture" }
-    ]
-  }
 }
 
 const route = useRoute()
@@ -79,10 +60,8 @@ const currentIndex = computed(() => {
 const userResponses = ref({
   relationship: '',
   lsvLevel: '',
-  dailyGoal: '',
-  audioMode: '',
+  audioProfile: '',
   uiAccessibility: '',
-  priorityVocabulary: ''
 });
 
 function handleNextStep() {

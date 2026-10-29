@@ -8,25 +8,28 @@ onRecordCreateRequest((e) => {
 
     try {
         const prefCollection = $app.findCollectionByNameOrId("user_preferences");
-        const statsCollection = $app.findCollectionByNameOrId("user_game_stats");
+        const statsCollection = $app.findCollectionByNameOrId("gamified_stats");
 
         // 2. Crear Preferencias
         const newPreferences = new Record(prefCollection, {
             "user": userRecord.id,
-            "level_preference": userRecord.get("level_preference") || "NONE",
-            "daily_goal": Number(userRecord.get("daily_goal")) || 10,
-            "audio_mode": userRecord.get("audio_mode") || "FULL_AUDIO"
+            "dark_mode": userRecord.get("dark_mode") || false,
+            "high_contrast": userRecord.get("high_contrast") || false,
+            "calm_mode": userRecord.get("calm_mode") || false,
+            "disable_animations": userRecord.get("disable_animations") || false,
+            "audio_profile": userRecord.get("audio_profile") || "FULL_AUDIO"
         });
         $app.save(newPreferences);
 
         // 3. Crear Estadísticas
         const newStats = new Record(statsCollection);
         newStats.set("user", userRecord.id);
-        newStats.set("current_level", "A1");
-        newStats.set("current_hearts", 5);
-        newStats.set("total_score", 0);
-        newStats.set("current_streak", 0);
-        newStats.set("last_activity_day", new DateTime()); // Usar el helper DateTime de PocketBase
+        newStats.set("current_mcer_level", "A1");
+        newStats.set("hearts", 5);
+        newStats.set("xp", 0);
+        newStats.set("gems", 0);
+        newStats.set("streak", 0);
+        newStats.set("last_activity", new DateTime()); // Usar el helper DateTime de PocketBase
 
         $app.save(newStats);
 

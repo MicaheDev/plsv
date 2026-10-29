@@ -12,6 +12,7 @@ import {
   faCrown,
   faUserGear,
   faShop,
+  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 
 const currentUser = ref(pb.authStore.record);
@@ -57,7 +58,7 @@ onMounted(async () => {
   try {
     const userId = currentUser.value.id;
     const gameStats = await pb
-      .collection("user_game_stats")
+      .collection("gamified_stats")
       .getFirstListItem(`user = "${userId}"`);
 
     stats.value = gameStats;
@@ -92,25 +93,31 @@ onMounted(async () => {
               class="inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl text-emerald-500"
             >
               <FontAwesomeIcon :icon="faShield" class="text-2xl" />
-              {{ stats.current_level }}
+              {{ stats.current_mcer_level }}
             </span>
             <span
               class="inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl text-orange-500"
             >
               <FontAwesomeIcon :icon="faFire" class="text-2xl" />
-              {{ stats.current_streak }}
+              {{ stats.streak }}
+            </span>
+             <span
+              class="inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl text-yellow-500"
+            >
+              <FontAwesomeIcon :icon="faStar" class="text-2xl" />
+              {{ stats.xp }}
             </span>
             <span
               class="inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl text-blue-500"
             >
               <FontAwesomeIcon :icon="faGem" class="text-2xl" />
-              {{ stats.total_score }}
+              {{ stats.gems }}
             </span>
             <span
               class="inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl text-red-500"
             >
               <FontAwesomeIcon :icon="faHeart" class="text-2xl" />
-              {{ stats.current_hearts }}
+              {{ stats.hearts }}
             </span>
           </div>
           <p v-else>

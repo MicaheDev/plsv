@@ -10,37 +10,6 @@ import {
 
 } from "@fortawesome/free-solid-svg-icons";
 
-const currentUser = ref(pb.authStore.record);
-const stats = ref(null);
-const isLoading = ref(true);
-
-onMounted(async () => {
-  if (!currentUser.value) {
-    isLoading.value = false;
-    return;
-  }
-
-  try {
-    const userId = currentUser.value.id;
-    const gameStats = await pb
-      .collection("user_game_stats")
-      .getFirstListItem(`user = "${userId}"`);
-
-    stats.value = gameStats;
-  } catch (error) {
-    console.log("Estado de la respuesta de PocketBase:", error.status);
-    if (error.status === 404) {
-      console.warn(
-        "No se encontró el registro para este ID de usuario o las API Rules lo están bloqueando.",
-      );
-    } else {
-      console.error("Error al consultar:", error);
-    }
-  } finally {
-    isLoading.value = false;
-  }
-});
-
 const links = [
   {
     path: "/profile",
@@ -57,11 +26,7 @@ const links = [
     icon: faBookBookmark,
     label: "Diccionario",
   },
-  {
-    path: "/studio/students",
-    icon: faUserGear,
-    label: "Estudiantes",
-  },
+
 ];
 </script>
 
