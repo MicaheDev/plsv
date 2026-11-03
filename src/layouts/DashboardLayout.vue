@@ -14,12 +14,12 @@ import {
   faShop,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
+import clsx from "clsx";
 
 const currentUser = ref(pb.authStore.record);
 const stats = ref(null);
 const isLoading = ref(true);
 
-import clsx from "clsx";
 const links = [
   {
     path: "/learning",
@@ -87,7 +87,7 @@ onMounted(async () => {
           <span v-if="isLoading">Cargando...</span>
           <div
             v-else-if="stats"
-            class="w-full flex items-center justify-between gap-2"
+            class="w-full flex items-center justify-between gap-auto"
           >
             <span
               class="inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl text-emerald-500"

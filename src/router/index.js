@@ -67,14 +67,9 @@ const routes = [
     meta: { layout: StudioLayout,requiresAuth: true, requiresAdmin: true},
     children: [
       {
-        path: "/studio",
-        name: "Studio",
-        component: () => import("@/views/admin/StudioView.vue")
-      },
-      {
-        path: "/studio/module/:id",
-        name: "ModuleDetail",
-        component: () => import("@/views/admin/ModuleDetailView.vue")
+        path: "/studio/route",
+        name: "Route",
+        component: () => import("@/views/admin/RouteView.vue")
       },
        {
         path: "/studio/dictionary",

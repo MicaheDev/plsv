@@ -4,9 +4,9 @@ import { ref, onMounted } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faBookBookmark,
-  faUserGear,
   faReply,
   faPencil,
+  faRoute
 
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -17,9 +17,9 @@ const links = [
     label: "Volver",
   },
   {
-    path: "/studio",
-    icon: faPencil,
-    label: "Studio",
+    path: "/studio/route",
+    icon: faRoute,
+    label: "Ruta",
   },
   {
     path: "/studio/dictionary",
@@ -35,6 +35,7 @@ const links = [
     <div
       class="w-full h-full flex flex-row-reverse max-lg:flex-col justify-center overflow-hidden"
     >
+    
       <main
         class="w-full overflow-hidden overflow-y-auto max-w-2xl h-full max-lg:max-w-none"
       >

@@ -115,7 +115,7 @@ function getRole(role_name) {
             <p class="text-sm font-medium text-slate-400">Accede al panel de gestión e impartición de contenidos.</p>
           </div>
           <LinkButton
-            to="/studio"
+            to="/studio/route"
             variant="secondary"
             class="shrink-0"
           >
