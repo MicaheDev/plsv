@@ -16,6 +16,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 
+
 const currentUser = ref(pb.authStore.record);
 const stats = ref(null);
 const isLoading = ref(true);

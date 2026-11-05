@@ -9,7 +9,7 @@ import {
   faRoute
 
 } from "@fortawesome/free-solid-svg-icons";
-
+import Select from "@/components/Select.vue";
 const links = [
   {
     path: "/profile",
@@ -28,19 +28,29 @@ const links = [
   },
 
 ];
+
+// Nivel seleccionado (A1 por defecto)
+const selectedLevel = ref("a1");
+
+const levelOptions = [
+  { label: "Nivel A1", value: "a1" },
+  { label: "Nivel A2", value: "a2" },
+  { label: "Nivel B1", value: "b1" },
+  { label: "Nivel B2", value: "b2" },
+  { label: "Nivel C1", value: "c1" },
+  { label: "Nivel C2", value: "c2" },
+];
+
 </script>
 
 <template>
   <div class="w-full h-svh flex flex-row-reverse max-lg:flex-col">
-    <div
+     <div
       class="w-full h-full flex flex-row-reverse max-lg:flex-col justify-center overflow-hidden"
     >
-    
-      <main
-        class="w-full overflow-hidden overflow-y-auto max-w-2xl h-full max-lg:max-w-none"
-      >
-        <slot></slot>
-      </main>
+   <slot/>
+  
+      
     </div>
 
     <nav

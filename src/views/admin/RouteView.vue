@@ -284,19 +284,21 @@ const getZigzagStyle = (index) => {
 </script>
 
 <template>
-  <div class="w-full mx-auto p-4 space-y-6 bg-white min-h-screen pb-24">
-    <!-- Selector de Nivel MCER -->
-    <div class="sticky top-0 z-20 bg-white/90 backdrop-blur-md pb-2 pt-2">
-      <Select
+ <header class="w-fit px-4 flex border-gray-300  h-18  max-lg:shrink-0 max-lg:w-full max-lg:bg-white">
+ 
+
+   <Select
         v-model="selectedLevel"
         :options="levelOptions"
         variant="studio"
-        class="text-center font-black"
+        class="text-center text-xs! font-black"
       >
-        Nivel del Learning Path
+        Nivel de la ruta
       </Select>
-    </div>
-
+ </header>
+<main
+   class="w-full overflow-hidden overflow-y-auto max-w-2xl h-full max-lg:max-w-none">
+  <div class="w-full mx-auto p-4 space-y-6 bg-white min-h-screen pb-24">
     <!-- Lista Vertical de Módulos -->
     <div class="space-y-10">
       <div
@@ -533,4 +535,5 @@ const getZigzagStyle = (index) => {
       </form>
     </Modal>
   </div>
+    </main>
 </template>
