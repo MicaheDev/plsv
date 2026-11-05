@@ -75,6 +75,11 @@ const routes = [
         path: "/studio/dictionary",
         name: "DictionaryStudio",
         component: () => import("@/views/admin/DictionaryView.vue")
+      },
+       {
+        path: "/studio/lesson/:id",
+        name: "LessonDetail",
+        component: () => import("@/views/admin/LessonDetail.vue")
       }
     ]
   }

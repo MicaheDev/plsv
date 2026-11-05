@@ -5,6 +5,7 @@ import Button from "@/components/Button.vue";
 import Input from "@/components/Input.vue";
 import Select from "@/components/Select.vue";
 import Modal from "@/components/Modal.vue";
+import BottomSheet from "@/components/BottomSheet.vue";
 import Switch from "@/components/Switch.vue";
 import pb from "@/services/pb";
 import {
@@ -24,6 +25,7 @@ import {
   faGamepad,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import clsx from "clsx";
 
 const router = useRouter();
 
@@ -37,6 +39,19 @@ const levelOptions = [
   { label: "Nivel B2", value: "b2" },
   { label: "Nivel C1", value: "c1" },
   { label: "Nivel C2", value: "c2" },
+];
+
+// Opciones de colores para la lección
+const colorOptions = [
+  { label: "Rojo (Red)", value: "red" },
+  { label: "Azul (Blue)", value: "blue" },
+  { label: "Amarillo (Yellow)", value: "yellow" },
+  { label: "Verde (Green)", value: "green" },
+  { label: "Marrón (Brown)", value: "brown" },
+  { label: "Gris (Gray)", value: "gray" },
+  { label: "Morado (Purple)", value: "purple" },
+  { label: "Rosa (Pink)", value: "pink" },
+  { label: "Naranja (Orange)", value: "orange" },
 ];
 
 // Mapeo de nombres de iconos a objetos de FontAwesome
@@ -77,6 +92,7 @@ const moduleForm = ref({
 const lessonForm = ref({
   title: "",
   icon: "faBookOpen",
+  color: "green",
   xp_reward: 10,
   gems_reward: 5,
   estimated_duration: 5,
@@ -249,6 +265,7 @@ const openNewLessonSheet = (moduleId) => {
     title: "",
     icon: "faBookOpen",
     xp_reward: 10,
+    color: "green",
     gems_reward: 5,
     estimated_duration: 5,
     position: nextPos,
@@ -272,6 +289,7 @@ const saveLesson = async () => {
       title: lessonForm.value.title,
       icon: lessonForm.value.icon, // Guardamos el icono seleccionado
       xp_reward: Number(lessonForm.value.xp_reward),
+ color: lessonForm.value.color, // Guardamos el color seleccionado
       gems_reward: Number(lessonForm.value.gems_reward),
       estimated_duration: Number(lessonForm.value.estimated_duration),
       position: Number(lessonForm.value.position),
@@ -300,7 +318,7 @@ const getZigzagStyle = (index) => {
 </script>
 
 <template>
-  <header class="w-fit px-4 flex border-gray-300 h-18 max-lg:shrink-0 max-lg:w-full max-lg:bg-white">
+  <header class="w-fit px-4 py-4 max-lg:py-0 flex border-gray-300 h-20 flex items-center max-lg:shrink-0 max-lg:w-full max-lg:bg-white">
     <Select
       v-model="selectedLevel"
       :options="levelOptions"
@@ -390,7 +408,13 @@ const getZigzagStyle = (index) => {
               class="group flex flex-col items-center cursor-pointer transition-transform active:scale-95"
             >
               <div
-                class="w-16 h-16 rounded-full bg-teal-500 border-b-4 border-teal-700 text-white flex items-center justify-center shadow-md group-hover:bg-teal-600 transition-colors relative"
+                :class="clsx('w-16 h-16 rounded-full border-b-4 text-white flex items-center justify-center shadow-md  transition-colors relative' , {
+                  'bg-red-400 border-red-700 group-hover:bg-red-600': lesson.color === 'red',
+                  'bg-blue-400 border-blue-700 group-hover:bg-blue-600': lesson.color === 'blue',
+                  'bg-green-400 border-green-700 group-hover:bg-green-600': lesson.color === 'green',
+                  'bg-yellow-400 border-yellow-700 group-hover:bg-yellow-600': lesson.color === 'yellow',
+                  'bg-gray-400 border-gray-700 group-hover:bg-gray-600': !lesson.color,
+                })"
               >
                 <!-- Renderiza el icono dinámico guardado en la lección -->
                 <FontAwesomeIcon :icon="getIconComponent(lesson.icon)" class="text-xl" />
@@ -440,7 +464,7 @@ const getZigzagStyle = (index) => {
       </div>
 
       <!-- BottomSheet: Crear / Editar Módulo -->
-      <Modal v-model="isModuleSheetOpen" :title="editingModuleId ? 'Editar Módulo' : 'Nuevo Módulo'">
+      <BottomSheet v-model="isModuleSheetOpen" :title="editingModuleId ? 'Editar Módulo' : 'Nuevo Módulo'">
         <form @submit.prevent="saveModule" class="space-y-4">
           <Input
             v-model="moduleForm.title"
@@ -481,11 +505,11 @@ const getZigzagStyle = (index) => {
             </Button>
           </div>
         </form>
-      </Modal>
+      </BottomSheet>
 
       <!-- BottomSheet: Crear Lección -->
-      <Modal v-model="isLessonSheetOpen" title="Nueva Lección">
-        <form @submit.prevent="saveLesson" class="space-y-4">
+      <BottomSheet v-model="isLessonSheetOpen" :title="editingLessonId ? 'Editar Lección' : 'Nueva Lección'">
+        <form @submit.prevent="saveLesson" class="space-y-4 overflow">
           <Input
             v-model="lessonForm.title"
             variant="studio"
@@ -512,6 +536,15 @@ const getZigzagStyle = (index) => {
               <span class="text-xs font-black text-teal-700 bg-teal-100 px-3 py-1.5 rounded-xl">Cambiar Icono</span>
             </button>
           </div>
+
+          <Select
+            v-model="lessonForm.color"
+            :options="colorOptions"
+            variant="studio"
+            required
+          >
+            Color de la Lección
+          </Select>
 
           <div class="grid grid-cols-2 gap-3">
             <Input
@@ -565,7 +598,7 @@ const getZigzagStyle = (index) => {
             </Button>
           </div>
         </form>
-      </Modal>
+      </BottomSheet>
 
       <!-- Modal Interno: Selección de Icono -->
       <Modal v-model="isIconModalOpen" title="Seleccionar Icono">
