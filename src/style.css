@@ -23,6 +23,15 @@ body {
   padding-bottom: var(--safe-bottom);
 }
 
+.preload * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
 @theme {
   --font-montserrat: "Montserrat", sans-serif;
 

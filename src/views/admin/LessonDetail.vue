@@ -1,20 +1,19 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Button from "@/components/Button.vue";
 import Input from "@/components/Input.vue";
 import Select from "@/components/Select.vue";
-import Modal from "@/components/Modal.vue";
 import BottomSheet from "@/components/BottomSheet.vue";
 import pb from "@/services/pb";
 import {
-  faArrowLeft,
   faPlus,
   faTrash,
-  faGamepad,
   faVideo,
+  faArrowLeft,
   faImage,
   faFileUpload,
+  faPencil,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
@@ -27,13 +26,14 @@ const lesson = ref(null);
 const challenges = ref([]);
 const signs = ref([]);
 
-// Estado del Modal de Retos
-const isChallengeModalOpen = ref(false);
-const editingChallengeId = ref(null);
+// Estado de selección del Reto activo en el Timeline
+const activeChallengeIndex = ref(0);
+const isEditingExisting = ref(false);
 
 // Formulario del Reto
 const challengeForm = ref({
-  challenge_type: "QUIZ_MULTIPLE",
+  id: null,
+  challenge_type: "DEMO",
   target_type: "sign",
   target_id: "",
   sentence: "",
@@ -43,11 +43,11 @@ const challengeForm = ref({
 });
 
 const challengeTypeOptions = [
-  { label: "Demostración / Explicación (DEMO)", value: "DEMO" },
-  { label: "Opción Múltiple (QUIZ_MULTIPLE)", value: "QUIZ_MULTIPLE" },
-  { label: "Quiz Inverso (REVERSE_QUIZ)", value: "REVERSE_QUIZ" },
-  { label: "Emparejamiento (MATCHING)", value: "MATCHING" },
-  { label: "Práctica Libre (FREE_PRACTICE)", value: "FREE_PRACTICE" },
+  { label: "Demostración / Explicación", value: "DEMO" },
+  { label: "Opción Múltiple", value: "QUIZ_MULTIPLE" },
+  { label: "Quiz Inverso", value: "REVERSE_QUIZ" },
+  { label: "Emparejamiento", value: "MATCHING" },
+  { label: "Práctica Libre", value: "FREE_PRACTICE" },
 ];
 
 const categoryOptions = [
@@ -58,65 +58,75 @@ const categoryOptions = [
   { label: "Otro", value: "otro" },
 ];
 
-// --- FORMULARIO Y SUBIDA DE ARCHIVOS DE SEÑA (DICCIONARIO POCKETBASE) ---
-const isSignModalOpen = ref(false);
-const isUploadingSign = ref(false);
-
-const signForm = ref({
-  gloss: "",
-  meaning: "",
-  description: "",
-  grammatical_category: "sustantivo",
+// Computed para determinar si el reto activo requiere opciones de respuesta
+const requiresOptions = computed(() => {
+  return ["QUIZ_MULTIPLE", "REVERSE_QUIZ", "MATCHING"].includes(
+    challengeForm.value.challenge_type,
+  );
 });
 
-// Referencias a los archivos cargados
-const videoFile = ref(null);
-const imageFile = ref(null);
-const representationImageFile = ref(null);
-
-// Manejadores de eventos al seleccionar archivos
-const handleVideoChange = (e) => {
-  videoFile.value = e.target.files[0] || null;
-};
-const handleImageChange = (e) => {
-  imageFile.value = e.target.files[0] || null;
-};
-const handleRepresentationImageChange = (e) => {
-  representationImageFile.value = e.target.files[0] || null;
-};
-
-// Cargar datos iniciales
-const fetchLessonData = async () => {
-  try {
-    lesson.value = await pb.collection("lessons").getOne(lessonId);
-
-    challenges.value = await pb.collection("challenges").getFullList({
-      filter: `lesson_id = "${lessonId}"`,
-      sort: "position",
-    });
-
-    // Forzar la actualización limpia del listado de señas
-    const signRecords = await pb.collection("signs").getFullList({
-      sort: "gloss",
-    });
-    signs.value = [...signRecords]; // Usar operador spread para asegurar reactividad en Vue
-  } catch (error) {
-    console.error("Error al cargar los datos de la lección:", error);
+// Helper para obtener etiqueta corta en el Timeline (Frame 4)
+const getShortLabel = (type) => {
+  switch (type) {
+    case "DEMO":
+      return "Demo";
+    case "QUIZ_MULTIPLE":
+      return "Quiz";
+    case "REVERSE_QUIZ":
+      return "Rev. Quiz";
+    case "MATCHING":
+      return "Match";
+    case "FREE_PRACTICE":
+      return "Práctica";
+    default:
+      return "Reto";
   }
 };
-onMounted(() => {
-  fetchLessonData();
-});
 
-const goBack = () => {
-  router.push("/studio");
+// Cargar un reto de la lista en el formulario
+const loadChallengeIntoForm = (index) => {
+  if (challenges.value.length === 0 || index >= challenges.value.length) {
+    resetFormForNewChallenge();
+    return;
+  }
+
+  activeChallengeIndex.value = index;
+  isEditingExisting.value = true;
+  const item = challenges.value[index];
+
+  let parsedConfig = { options: ["", "", ""], correct_answer: "" };
+  try {
+    if (item.challenge_config) {
+      parsedConfig =
+        typeof item.challenge_config === "string"
+          ? JSON.parse(item.challenge_config)
+          : item.challenge_config;
+    }
+  } catch (e) {
+    console.warn("No se pudo parsear el JSON de challenge_config", e);
+  }
+
+  challengeForm.value = {
+    id: item.id,
+    challenge_type: item.challenge_type || "DEMO",
+    target_type: item.target_type || "sign",
+    target_id: item.target_id || "",
+    sentence: item.sentence || "",
+    position: item.position || index + 1,
+    config_options:
+      parsedConfig.options && parsedConfig.options.length
+        ? parsedConfig.options
+        : ["", "", ""],
+    config_correct_answer: parsedConfig.correct_answer || "",
+  };
 };
 
-// --- CRUD RETOS ---
-const openNewChallengeModal = () => {
-  editingChallengeId.value = null;
+const resetFormForNewChallenge = () => {
+  activeChallengeIndex.value = challenges.value.length;
+  isEditingExisting.value = false;
   challengeForm.value = {
-    challenge_type: "QUIZ_MULTIPLE",
+    id: null,
+    challenge_type: "DEMO",
     target_type: "sign",
     target_id: "",
     sentence: "",
@@ -124,15 +134,52 @@ const openNewChallengeModal = () => {
     config_options: ["", "", ""],
     config_correct_answer: "",
   };
-  isChallengeModalOpen.value = true;
 };
 
+// Cargar datos iniciales
+const fetchLessonData = async () => {
+  try {
+    lesson.value = await pb.collection("lessons").getOne(lessonId);
+
+    const challengeRecords = await pb.collection("challenges").getFullList({
+      filter: `lesson_id = "${lessonId}"`,
+      sort: "position",
+    });
+    challenges.value = challengeRecords;
+
+    const signRecords = await pb.collection("signs").getFullList({
+      sort: "gloss",
+    });
+    signs.value = [...signRecords];
+
+    if (challenges.value.length > 0) {
+      loadChallengeIntoForm(0);
+    } else {
+      resetFormForNewChallenge();
+    }
+  } catch (error) {
+    console.error("Error al cargar los datos de la lección:", error);
+  }
+};
+
+onMounted(() => {
+  fetchLessonData();
+});
+
+const goBack = () => {
+  router.push("/studio/route");
+};
+
+// Guardar Reto (Crear o Editar)
 const saveChallenge = async () => {
   try {
-    const configData = {
-      options: challengeForm.value.config_options,
-      correct_answer: challengeForm.value.config_correct_answer,
-    };
+    let configData = {};
+    if (requiresOptions.value) {
+      configData = {
+        options: challengeForm.value.config_options,
+        correct_answer: challengeForm.value.config_correct_answer,
+      };
+    }
 
     const payload = {
       lesson_id: lessonId,
@@ -144,61 +191,89 @@ const saveChallenge = async () => {
       challenge_config: JSON.stringify(configData),
     };
 
-    if (editingChallengeId.value) {
-      await pb.collection("challenges").update(editingChallengeId.value, payload);
+    if (challengeForm.value.id) {
+      await pb.collection("challenges").update(challengeForm.value.id, payload);
     } else {
       await pb.collection("challenges").create(payload);
     }
 
-    isChallengeModalOpen.value = false;
+    const savedIndex = activeChallengeIndex.value;
     await fetchLessonData();
+    if (savedIndex < challenges.value.length) {
+      loadChallengeIntoForm(savedIndex);
+    }
   } catch (error) {
     console.error("Error al guardar el reto:", error);
     alert("Hubo un error al registrar el reto.");
   }
 };
 
-const deleteChallenge = async (challengeId) => {
+const deleteChallenge = async () => {
+  if (!challengeForm.value.id) return;
   if (!confirm("¿Estás seguro de eliminar este reto?")) return;
+
   try {
-    await pb.collection("challenges").delete(challengeId);
+    await pb.collection("challenges").delete(challengeForm.value.id);
     await fetchLessonData();
   } catch (error) {
     console.error("Error al eliminar el reto:", error);
   }
 };
 
-// --- CREAR SEÑA MULTIMEDIA CON FORMDATA EN POCKETBASE ---
+// --- MODAL DE SEÑAS AL VUELO ---
+const isSignModalOpen = ref(false);
+const isUploadingSign = ref(false);
+
+const signForm = ref({
+  gloss: "",
+  meaning: "",
+  description: "",
+  grammatical_category: "sustantivo",
+});
+
+const videoFile = ref(null);
+const imageFile = ref(null);
+const representationImageFile = ref(null);
+
+const handleVideoChange = (e) => {
+  videoFile.value = e.target.files[0] || null;
+};
+const handleImageChange = (e) => {
+  imageFile.value = e.target.files[0] || null;
+};
+const handleRepresentationImageChange = (e) => {
+  representationImageFile.value = e.target.files[0] || null;
+};
+
 const saveNewSign = async () => {
   try {
     isUploadingSign.value = true;
 
-    // Crear objeto FormData para adjuntar textos y archivos binarios a PocketBase
     const formData = new FormData();
     formData.append("gloss", signForm.value.gloss);
     formData.append("meaning", signForm.value.meaning);
     formData.append("description", signForm.value.description);
-    formData.append("grammatical_category", signForm.value.grammatical_category);
+    formData.append(
+      "grammatical_category",
+      signForm.value.grammatical_category,
+    );
 
-    if (videoFile.value) {
-      formData.append("video", videoFile.value);
-    }
-    if (imageFile.value) {
-      formData.append("image", imageFile.value);
-    }
+    if (videoFile.value) formData.append("video", videoFile.value);
+    if (imageFile.value) formData.append("image", imageFile.value);
     if (representationImageFile.value) {
       formData.append("representation_image", representationImageFile.value);
     }
 
-    // Enviar FormData al endpoint de signs
     const newSign = await pb.collection("signs").create(formData);
 
-    // Actualizar lista y seleccionar automáticamente
-    await fetchLessonData();
+    const signRecords = await pb
+      .collection("signs")
+      .getFullList({ sort: "gloss" });
+    signs.value = [...signRecords];
+
     challengeForm.value.target_id = newSign.id;
     isSignModalOpen.value = false;
 
-    // Limpiar campos
     signForm.value = {
       gloss: "",
       meaning: "",
@@ -218,85 +293,103 @@ const saveNewSign = async () => {
 </script>
 
 <template>
-  <!-- <header class="w-full px-6 flex items-center justify-between border-b-2 border-slate-200 h-18 bg-white sticky top-0 z-20">
+  <!-- Header Principal -->
+  <header
+    class="w-full max-w-2xl mx-auto px-6 flex items-center justify-between border-b border-slate-200 h-16 bg-white sticky top-0"
+  >
     <div class="flex items-center gap-3">
       <button
         @click="goBack"
-        class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
+        class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
       >
-        <FontAwesomeIcon :icon="faArrowLeft" class="text-lg" />
+        <FontAwesomeIcon :icon="faArrowLeft" class="text-base" />
       </button>
       <div>
-        <span class="text-[10px] font-black text-teal-600 uppercase tracking-wider">Editor de Lección</span>
-        <h1 class="font-black text-base text-teal-950 truncate max-w-[200px] sm:max-w-md">
-          {{ lesson ? lesson.title : 'Cargando...' }}
+        <span
+          class="text-[10px] font-black text-teal-600 uppercase tracking-wider"
+          >Editor de Lección</span
+        >
+        <h1
+          class="font-black text-sm text-teal-950 truncate max-w-[200px] sm:max-w-md"
+        >
+          {{ lesson ? lesson.title : "Cargando..." }}
         </h1>
       </div>
     </div>
+  </header>
 
-    <Button variant="studio" @click="openNewChallengeModal">
-      <span>Nuevo Reto</span>
-      <template #icon>
-        <FontAwesomeIcon :icon="faPlus" />
-      </template>
-    </Button>
-  </header> -->
-  
+  <!-- Contenido Principal: Formulario Inline del Reto Seleccionado -->
+  <main class="w-full overflow-y-auto max-w-2xl mx-auto h-full pb-24">
+    <!-- Sub-Header: Línea de Tiempo Horizontal (Frame 4) -->
+    <div
+      class="w-full max-w-2xl px-2 mx-auto bg-slate-100/90 border-b border-slate-200 py-2 mb-4"
+    >
+      <div class="text-center">
+        <span class="text-xs font-black text-slate-700 tracking-tight"
+          >Línea de Tiempo</span
+        >
+      </div>
 
-  <!-- Main Content -->
-  <main class="w-full overflow-hidden overflow-y-auto max-w-2xl mx-auto h-full max-lg:max-w-none p-4 pb-24">
-    <div class="space-y-4">
-      <h2 class="font-black text-slate-700 text-sm uppercase tracking-wider">Secuencia de Retos (Timeline)</h2>
-
-      <!-- Lista de Retos -->
+      <!-- Container con Scroll Horizontal -->
       <div
-        v-for="challenge in challenges"
-        :key="challenge.id"
-        class="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 flex items-center justify-between shadow-sm"
+        class="flex items-center gap-2"
       >
-        <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-teal-600 text-white text-xs font-black flex items-center justify-center">
-              {{ challenge.position }}
-            </span>
-            <span class="text-xs font-black text-teal-800 bg-teal-100 px-2 py-0.5 rounded-md">
-              {{ challenge.challenge_type }}
-            </span>
-          </div>
-          <p class="font-bold text-slate-800 text-sm">
-            {{ challenge.sentence || 'Reto basado en seña atómica' }}
-          </p>
+        <div class=" lex items-center gap-2 overflow-x-auto no-scrollbar w-full h-15 px-4 flex items-center gap-2">
+          <button
+            v-for="(item, idx) in challenges"
+            :key="item.id || idx"
+            @click="loadChallengeIntoForm(idx)"
+            :class="[
+              'px-3.5 py-1.5 rounded-2xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer flex items-center gap-1.5',
+              activeChallengeIndex === idx && isEditingExisting
+                ? 'bg-teal-500 text-white border-teal-600 shadow-sm scale-105'
+                : 'bg-white text-slate-700 border-slate-300 hover:border-teal-400',
+            ]"
+          >
+            <span>{{ idx + 1 }}. {{ getShortLabel(item.challenge_type) }}</span>
+          </button>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="w-min p-2 border-l-2 border-slate-300 flex items-center justify-center">
           <button
-            @click="deleteChallenge(challenge.id)"
-            class="w-9 h-9 rounded-xl text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors cursor-pointer"
+            @click="resetFormForNewChallenge"
+            :class="[
+              'w-9 h-9 rounded-2xl border-2 flex items-center justify-center shrink-0 cursor-pointer transition-all',
+              !isEditingExisting
+                ? 'bg-teal-500 text-white border-teal-600 scale-105'
+                : 'bg-white text-teal-600 border-teal-500 hover:bg-teal-50',
+            ]"
+            title="Agregar nuevo reto"
           >
-            <FontAwesomeIcon :icon="faTrash" />
+            <FontAwesomeIcon :icon="faPlus" class="text-sm" />
           </button>
         </div>
       </div>
-
-      <!-- Placeholder si no hay retos -->
-      <div
-        v-if="challenges.length === 0"
-        @click="openNewChallengeModal"
-        class="p-8 rounded-3xl border-4 border-dashed border-slate-300 bg-slate-50/50 hover:border-teal-500 cursor-pointer transition-all text-center flex flex-col items-center justify-center gap-2 group"
-      >
-        <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <FontAwesomeIcon :icon="faGamepad" class="text-xl" />
-        </div>
-        <span class="font-black text-slate-500 group-hover:text-teal-900">
-          No hay retos creados. Presiona aquí para agregar el primero.
-        </span>
-      </div>
     </div>
+    <div class="bg-white p-4 rounded-3xl space-y-4">
+      <div
+        class="flex items-center justify-between pb-3 border-b border-slate-100"
+      >
+        <h2 class="font-black text-teal-950 text-base">
+          {{
+            isEditingExisting
+              ? `Configurar Reto #${activeChallengeIndex + 1}`
+              : "Crear Nuevo Reto"
+          }}
+        </h2>
 
-    <!-- BottomSheet / Modal: Crear o Editar Reto -->
-    <BottomSheet v-model="isChallengeModalOpen" :title="editingChallengeId ? 'Editar Reto' : 'Nuevo Reto'">
+        <button
+          v-if="isEditingExisting"
+          @click="deleteChallenge"
+          class="text-xs font-black text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl border border-red-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <FontAwesomeIcon :icon="faTrash" />
+          <span>Eliminar</span>
+        </button>
+      </div>
+
       <form @submit.prevent="saveChallenge" class="space-y-4">
-        <!-- Tipo de Reto -->
+        <!-- Selector del Tipo de Reto -->
         <Select
           v-model="challengeForm.challenge_type"
           :options="challengeTypeOptions"
@@ -309,20 +402,24 @@ const saveNewSign = async () => {
         <!-- Selección o Creación de Seña Asociada -->
         <div class="flex flex-col gap-2 w-full">
           <div class="flex justify-between items-center">
-            <label class="font-black text-teal-900 text-sm">Seña Asociada (Target)</label>
+            <label class="font-black text-teal-900 text-sm"
+              >Seña Asociada</label
+            >
             <button
               type="button"
               @click="isSignModalOpen = true"
               class="text-xs font-black text-teal-700 hover:underline cursor-pointer"
             >
-              + Crear nueva seña al vuelo
+              + Crear nueva seña
             </button>
           </div>
           <select
             v-model="challengeForm.target_id"
             class="px-4 py-2 rounded-2xl w-full text-base font-bold border-2 border-slate-300 bg-gray-50 focus:border-teal-600 focus:outline-none transition-colors"
           >
-            <option value="" disabled selected>Seleccionar seña del diccionario</option>
+            <option value="" disabled selected>
+              Seleccionar seña del diccionario
+            </option>
             <option v-for="sign in signs" :value="sign.id" :key="sign.id">
               {{ sign.gloss }} - {{ sign.meaning }}
             </option>
@@ -335,22 +432,29 @@ const saveNewSign = async () => {
           variant="studio"
           placeholder="Ej. ¿Qué significa esta seña?"
         >
-          Enunciado o Pregunta (Sentence)
+          Enunciado o Pregunta
         </Input>
 
-        <!-- Configuración dinámica de opciones (JSON Config) -->
-        <div class="p-4 rounded-2xl bg-teal-50/50 border-2 border-teal-100 space-y-3">
-          <h3 class="font-black text-teal-900 text-xs uppercase">Configuración de Opciones (JSON Config)</h3>
-          
+        <!-- Configuración de Opciones (SOLO visible si NO es DEMO o FREE_PRACTICE) -->
+        <div
+          v-if="requiresOptions"
+          class="p-4 rounded-2xl bg-teal-50/50 border-2 border-teal-100 space-y-3"
+        >
+          <h3 class="font-black text-teal-900 text-xs uppercase tracking-wider">
+            Opciones de Respuesta
+          </h3>
+
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-600">Opciones incorrectas / alternativas:</label>
+            <label class="text-xs font-bold text-slate-600"
+              >Opciones incorrectas / alternativas:</label
+            >
             <input
               v-for="(opt, idx) in challengeForm.config_options"
               :key="idx"
               v-model="challengeForm.config_options[idx]"
               type="text"
               :placeholder="`Opción ${idx + 1}`"
-              class="px-3 py-1.5 rounded-xl w-full text-sm font-bold border-2 border-slate-200 bg-white focus:border-teal-600 focus:outline-none"
+              class="px-3 py-2 rounded-xl w-full text-sm font-bold border-2 border-slate-200 bg-white focus:border-teal-600 focus:outline-none"
             />
           </div>
 
@@ -373,16 +477,23 @@ const saveNewSign = async () => {
           Orden en la Lección
         </Input>
 
-        <div class="pt-4">
+        <div class="pt-2">
           <Button type="submit" variant="studio" class="w-full">
-            {{ editingChallengeId ? 'Actualizar Reto' : 'Guardar Reto' }}
+            {{
+              isEditingExisting
+                ? "Guardar Cambios del Reto"
+                : "Añadir Reto a la Lección"
+            }}
           </Button>
         </div>
       </form>
-    </BottomSheet>
+    </div>
 
-    <!-- Modal Interno: Registrar Nueva Seña con Carga Multimedia (FormData) -->
-    <BottomSheet class="w-full! h-full!" v-model="isSignModalOpen" title="Registrar Nueva Seña (Diccionario)">
+    <!-- BottomSheet Modal: Registrar Nueva Seña al Vuelo (Se mantiene intacto) -->
+    <BottomSheet
+      v-model="isSignModalOpen"
+      title="Registrar Nueva Seña"
+    >
       <form @submit.prevent="saveNewSign" class="space-y-4 max-w-2xl mx-auto">
         <Input
           v-model="signForm.gloss"
@@ -412,7 +523,9 @@ const saveNewSign = async () => {
         </Select>
 
         <div class="flex flex-col gap-2 w-full">
-          <label class="font-black text-teal-900 text-sm">Descripción de ejecución</label>
+          <label class="font-black text-teal-900 text-sm"
+            >Descripción de ejecución</label
+          >
           <textarea
             v-model="signForm.description"
             rows="2"
@@ -421,10 +534,13 @@ const saveNewSign = async () => {
           ></textarea>
         </div>
 
-        <!-- Archivo 1: Video (.mp4 / audio/mp4) -->
+        <!-- Archivo 1: Video (.mp4) -->
         <div class="flex flex-col gap-1 w-full">
-          <label class="font-black text-teal-900 text-sm flex items-center gap-1.5">
-            <FontAwesomeIcon :icon="faVideo" class="text-teal-600" /> Video de la Seña (.mp4)
+          <label
+            class="font-black text-teal-900 text-sm flex items-center gap-1.5"
+          >
+            <FontAwesomeIcon :icon="faVideo" class="text-teal-600" /> Video de
+            la Seña (.mp4)
           </label>
           <input
             type="file"
@@ -436,8 +552,11 @@ const saveNewSign = async () => {
 
         <!-- Archivo 2: Imagen Principal (.jpg, .png) -->
         <div class="flex flex-col gap-1 w-full">
-          <label class="font-black text-teal-900 text-sm flex items-center gap-1.5">
-            <FontAwesomeIcon :icon="faImage" class="text-teal-600" /> Imagen de la Seña (.jpg, .png)
+          <label
+            class="font-black text-teal-900 text-sm flex items-center gap-1.5"
+          >
+            <FontAwesomeIcon :icon="faImage" class="text-teal-600" /> Imagen de
+            la Seña (.jpg, .png)
           </label>
           <input
             type="file"
@@ -449,8 +568,11 @@ const saveNewSign = async () => {
 
         <!-- Archivo 3: Imagen de Representación (.jpg, .png) -->
         <div class="flex flex-col gap-1 w-full">
-          <label class="font-black text-teal-900 text-sm flex items-center gap-1.5">
-            <FontAwesomeIcon :icon="faFileUpload" class="text-teal-600" /> Imagen de Ilustración / Representación
+          <label
+            class="font-black text-teal-900 text-sm flex items-center gap-1.5"
+          >
+            <FontAwesomeIcon :icon="faFileUpload" class="text-teal-600" />
+            Imagen de Ilustración / Representación
           </label>
           <input
             type="file"
@@ -461,8 +583,17 @@ const saveNewSign = async () => {
         </div>
 
         <div class="pt-4">
-          <Button type="submit" variant="studio" class="w-full" :disabled="isUploadingSign">
-            {{ isUploadingSign ? 'Subiendo Archivos...' : 'Guardar Seña y Asociar' }}
+          <Button
+            type="submit"
+            variant="studio"
+            class="w-full"
+            :disabled="isUploadingSign"
+          >
+            {{
+              isUploadingSign
+                ? "Subiendo Archivos..."
+                : "Guardar Seña y Asociar"
+            }}
           </Button>
         </div>
       </form>

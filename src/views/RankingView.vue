@@ -1,5 +1,8 @@
+<script setup >
+import Working from '@/components/Working.vue';
+
+</script>
+
 <template>
-    <div class="w-full h-full p-6 overflow-hidden">
-        <h1>Ranking</h1>
-    </div>
+    <Working/>
 </template>

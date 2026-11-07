@@ -23,6 +23,7 @@ import {
   faFlagCheckered,
   faHands,
   faGamepad,
+  faPencil,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import clsx from "clsx";
@@ -37,8 +38,6 @@ const levelOptions = [
   { label: "Nivel A2", value: "a2" },
   { label: "Nivel B1", value: "b1" },
   { label: "Nivel B2", value: "b2" },
-  { label: "Nivel C1", value: "c1" },
-  { label: "Nivel C2", value: "c2" },
 ];
 
 // Opciones de colores para la lección
@@ -318,24 +317,35 @@ const getZigzagStyle = (index) => {
 </script>
 
 <template>
-  <header class="w-fit px-4 py-4 max-lg:py-0 flex border-gray-300 h-20 flex items-center max-lg:shrink-0 max-lg:w-full max-lg:bg-white">
-    <Select
-      v-model="selectedLevel"
-      :options="levelOptions"
-      variant="studio"
-      class="text-center text-xs! font-black"
-    >
-      Nivel de la ruta
-    </Select>
+  <header class="w-full max-w-2xl mx-auto px-4 py-4 max-lg:py-0 border-gray-300 h-15 flex items-center max-lg:shrink-0 max-lg:w-full max-lg:bg-white">
+   <div class="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar w-full py-1">
+      <button
+        v-for="option in levelOptions"
+        :value="option.value"
+        :key="option.value"
+        @click="selectedLevel = option.value"
+        :class="[
+          'px-4 py-1.5 rounded-2xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer uppercase',
+          selectedLevel === option.value
+            ? 'bg-teal-500 text-white border-teal-600 shadow-sm scale-105'
+            : 'bg-white text-slate-700 border-slate-300 hover:border-teal-400'
+        ]"
+      >
+        <span class=" max-lg:hidden inline">{{ option.label }}</span>
+        <span class=" max-lg:inline hidden">{{ option.value }}</span>
+      </button>
+    </div>
   </header>
-  <main class="w-full overflow-hidden overflow-y-auto max-w-2xl h-full max-lg:max-w-none">
+  <main class="w-full mx-auto overflow-hidden overflow-y-auto max-w-2xl h-full max-lg:max-w-none">
     <div class="w-full mx-auto p-4 space-y-6 bg-white min-h-screen pb-24">
       <!-- Lista Vertical de Módulos -->
       <div class="space-y-10">
         <div
           v-for="(mod, mIndex) in modules"
           :key="mod.id"
-          class="p-5 rounded-3xl border-2 border-slate-200 bg-slate-50 relative shadow-sm"
+          :class="clsx('p-5 rounded-3xl border-2 border-slate-200 bg-slate-50 relative shadow-sm', {
+            'opacity-80': !mod.is_published,
+          })"
         >
           <!-- Encabezado del Módulo con Dropdown de Opciones -->
           <div class="flex justify-between items-start mb-6 pb-3 border-b-2 border-slate-200 relative">
@@ -343,7 +353,10 @@ const getZigzagStyle = (index) => {
               <span class="text-xs font-black text-teal-600 uppercase tracking-wider">
                 Módulo {{ mod.position }}
               </span>
-              <h2 class="font-black text-xl text-teal-950">{{ mod.title }}</h2>
+              <h2 class="font-black text-xl text-teal-950">
+                <span v-if="mod.is_published">{{ mod.title }}</span>
+                <span v-else class="text-gray-500">{{ mod.title }} (Borrador)</span>
+              </h2>
               <p v-if="mod.description" class="text-xs font-bold text-slate-500 mt-0.5">
                 {{ mod.description }}
               </p>
@@ -405,27 +418,31 @@ const getZigzagStyle = (index) => {
               :key="lesson.id"
               :style="getZigzagStyle(lIndex)"
               @click="goToLessonDetail(lesson.id)"
-              class="group flex flex-col items-center cursor-pointer transition-transform active:scale-95"
+              class="group flex flex-col items-center cursor-pointer active:scale-95"
             >
               <div
                 :class="clsx('w-16 h-16 rounded-full border-b-4 text-white flex items-center justify-center shadow-md  transition-colors relative' , {
                   'bg-red-400 border-red-700 group-hover:bg-red-600': lesson.color === 'red',
                   'bg-blue-400 border-blue-700 group-hover:bg-blue-600': lesson.color === 'blue',
-                  'bg-green-400 border-green-700 group-hover:bg-green-600': lesson.color === 'green',
+                  'bg-teal-400 border-teal-700 group-hover:bg-teal-600': lesson.color === 'green',
                   'bg-yellow-400 border-yellow-700 group-hover:bg-yellow-600': lesson.color === 'yellow',
                   'bg-gray-400 border-gray-700 group-hover:bg-gray-600': !lesson.color,
+                  'bg-gray-400! opacity-50 border-gray-700! group-hover:bg-gray-600!': !lesson.is_published,
                 })"
               >
                 <!-- Renderiza el icono dinámico guardado en la lección -->
-                <FontAwesomeIcon :icon="getIconComponent(lesson.icon)" class="text-xl" />
+                <FontAwesomeIcon v-if="lesson.is_published" :icon="getIconComponent(lesson.icon)" class="text-xl" />
+                <FontAwesomeIcon v-else="lesson.is_published" :icon="faPencil" class="text-xl" />
+
                 <span
                   class="absolute -top-1 -right-1 w-5 h-5 bg-teal-900 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white"
                 >
                   {{ lesson.position }}
                 </span>
               </div>
-              <span class="text-xs font-black text-slate-700 mt-1 max-w-[110px] text-center truncate">
-                {{ lesson.title }}
+              <span class="text-xs font-black text-slate-700 mt-1 max-w-[200px] text-center truncate">
+                <span v-if="lesson.is_published">{{ lesson.title }}</span>
+                <span v-else class="text-gray-400">{{ lesson.title }} (Borrador)</span>
               </span>
             </div>
 
@@ -433,7 +450,7 @@ const getZigzagStyle = (index) => {
             <div
               :style="getZigzagStyle((lessonsByModule[mod.id] || []).length)"
               @click="openNewLessonSheet(mod.id)"
-              class="flex flex-col items-center cursor-pointer transition-transform active:scale-95 group"
+              class="flex flex-col items-center cursor-pointer active:scale-95 group"
             >
               <div
                 class="w-16 h-16 rounded-full border-4 border-dashed border-teal-400/60 bg-teal-50/50 text-teal-600 flex items-center justify-center group-hover:border-teal-500 group-hover:bg-teal-100/50 transition-all"
@@ -508,8 +525,8 @@ const getZigzagStyle = (index) => {
       </BottomSheet>
 
       <!-- BottomSheet: Crear Lección -->
-      <BottomSheet v-model="isLessonSheetOpen" :title="editingLessonId ? 'Editar Lección' : 'Nueva Lección'">
-        <form @submit.prevent="saveLesson" class="space-y-4 overflow">
+      <BottomSheet v-model="isLessonSheetOpen" title="Nueva Lección">
+        <form @submit.prevent="saveLesson" class="space-y-4 flex-1">
           <Input
             v-model="lessonForm.title"
             variant="studio"
@@ -531,7 +548,7 @@ const getZigzagStyle = (index) => {
                 <div class="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center">
                   <FontAwesomeIcon :icon="getIconComponent(lessonForm.icon)" class="text-lg" />
                 </div>
-                <span class="font-bold text-slate-700">{{ lessonForm.icon }}</span>
+                <span class="font-bold text-sm text-slate-700">{{ lessonForm.icon }}</span>
               </div>
               <span class="text-xs font-black text-teal-700 bg-teal-100 px-3 py-1.5 rounded-xl">Cambiar Icono</span>
             </button>

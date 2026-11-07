@@ -97,7 +97,10 @@ onMounted(async () => {
               {{ stats.current_mcer_level }}
             </span>
             <span
-              class="inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl text-orange-500"
+              :class="clsx('inline-flex items-center gap-1 pr-3 pl-2 py-2 font-bold rounded-xl', {
+                'text-gray-400/80': stats.streak === 0,
+                'text-orange-500': stats.streak > 0
+              })"
             >
               <FontAwesomeIcon :icon="faFire" class="text-2xl" />
               {{ stats.streak }}
