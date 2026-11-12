@@ -1,7 +1,6 @@
 <script setup>
 import Button from "@/components/Button.vue";
 import Input from "@/components/Input.vue";
-import LinkButton from "@/components/LinkButton.vue";
 import pb from "@/services/pb";
 import { formatPocketBaseError } from "@/utilities/errorMapper";
 import { reactive, ref } from "vue";
@@ -19,11 +18,21 @@ const form = reactive({
 
 async function handleOnSubmit() {
   isLoading.value = true;
+  errorMessage.value = "";
 
   try {
-    await pb.collection("users").authWithPassword(form.identity, form.password);
+    const authData = await pb
+      .collection("users")
+      .authWithPassword(form.identity, form.password);
 
-    router.push("/learning");
+    // Si es su primer ingreso (credenciales temporales)
+    if (authData.record.must_change_password) {
+      // Guardamos temporalmente la clave provisional para enviarla como 'oldPassword' a PocketBase
+      sessionStorage.setItem("temp_old_pass", form.password);
+      router.push("/activate-account");
+    } else {
+      router.push("/learning");
+    }
   } catch (error) {
     errorMessage.value =
       formatPocketBaseError(error.message) || "Error al iniciar sesión.";

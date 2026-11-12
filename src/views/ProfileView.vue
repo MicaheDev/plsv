@@ -23,8 +23,6 @@ function getRole(role_name) {
       return "ADMINISTRADOR";
     case "TEACHER":
       return "DOCENTE";
-    case "GUEST":
-      return "INVITADO";
     default:
       return "INVITADO";
   }

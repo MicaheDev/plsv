@@ -13,7 +13,6 @@ import {
   faArrowLeft,
   faImage,
   faFileUpload,
-  faPencil,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 

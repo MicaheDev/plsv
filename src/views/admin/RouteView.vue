@@ -53,7 +53,6 @@ const colorOptions = [
   { label: "Naranja (Orange)", value: "orange" },
 ];
 
-// Mapeo de nombres de iconos a objetos de FontAwesome
 const availableIcons = [
   { name: "faBookOpen", icon: faBookOpen, label: "Libro" },
   { name: "faDumbbell", icon: faDumbbell, label: "Pesas" },
@@ -74,7 +73,7 @@ const lessonsByModule = ref({});
 // Estados de Modales y Edición
 const isModuleSheetOpen = ref(false);
 const isLessonSheetOpen = ref(false);
-const isIconModalOpen = ref(false); // Estado para el modal de selección de iconos
+const isIconModalOpen = ref(false);
 const activeModuleIdForLesson = ref(null);
 const editingModuleId = ref(null);
 const activeDropdownId = ref(null);
@@ -87,7 +86,7 @@ const moduleForm = ref({
   is_published: true,
 });
 
-// Formulario de Lección (Incluye el campo icon por defecto)
+// Formulario de Lección
 const lessonForm = ref({
   title: "",
   icon: "faBookOpen",
@@ -255,10 +254,12 @@ const moveModulePosition = async (index, direction, event) => {
 
 // --- CRUD LECCIONES ---
 
-const openNewLessonSheet = (moduleId) => {
+const openNewLessonSheet = (moduleId, targetPosition = null) => {
   activeModuleIdForLesson.value = moduleId;
   const currentLessons = lessonsByModule.value[moduleId] || [];
-  const nextPos = currentLessons.length + 1;
+  
+  // Si se pasa una posición específica (inserción intermedia), se usa; sino al final
+  const nextPos = targetPosition !== null ? targetPosition : currentLessons.length + 1;
 
   lessonForm.value = {
     title: "",
@@ -283,15 +284,25 @@ const saveLesson = async () => {
   if (!activeModuleIdForLesson.value) return;
 
   try {
+    const currentLessons = lessonsByModule.value[activeModuleIdForLesson.value] || [];
+    const targetPos = Number(lessonForm.value.position);
+
+    // Si se inserta en medio, desplazar las posiciones de las lecciones siguientes
+    for (const l of currentLessons) {
+      if (l.position >= targetPos) {
+        await pb.collection("lessons").update(l.id, { position: l.position + 1 });
+      }
+    }
+
     await pb.collection("lessons").create({
       module_id: activeModuleIdForLesson.value,
       title: lessonForm.value.title,
-      icon: lessonForm.value.icon, // Guardamos el icono seleccionado
+      icon: lessonForm.value.icon,
       xp_reward: Number(lessonForm.value.xp_reward),
- color: lessonForm.value.color, // Guardamos el color seleccionado
+      color: lessonForm.value.color,
       gems_reward: Number(lessonForm.value.gems_reward),
       estimated_duration: Number(lessonForm.value.estimated_duration),
-      position: Number(lessonForm.value.position),
+      position: targetPos,
       is_published: lessonForm.value.is_published,
     });
 
@@ -300,6 +311,55 @@ const saveLesson = async () => {
   } catch (error) {
     console.error("Error al guardar la lección:", error);
     alert("Hubo un error al registrar la lección.");
+  }
+};
+
+// Eliminar lección directamente sin entrar al detalle
+const deleteLessonDirectly = async (lessonId, event) => {
+  event.stopPropagation();
+  if (!confirm("¿Estás seguro de eliminar esta lección? Se perderán sus retos asociados.")) return;
+
+  try {
+    await pb.collection("lessons").delete(lessonId);
+    await fetchModulesAndLessons();
+  } catch (error) {
+    console.error("Error al eliminar la lección:", error);
+    alert("No se pudo eliminar la lección.");
+  }
+};
+
+// --- DRAG AND DROP DE LECCIONES ---
+let draggedLessonId = null;
+
+const onDragStart = (lessonId, event) => {
+  draggedLessonId = lessonId;
+  event.dataTransfer.effectAllowed = "move";
+};
+
+const onDropLesson = async (targetModuleId, targetLessonPosition) => {
+  if (!draggedLessonId) return;
+
+  try {
+    // Buscar la lección arrastrada
+    let sourceLesson = null;
+    Object.values(lessonsByModule.value).forEach(list => {
+      const found = list.find(l => l.id === draggedLessonId);
+      if (found) sourceLesson = found;
+    });
+
+    if (!sourceLesson) return;
+
+    // Actualizar módulo si cambió y la posición
+    await pb.collection("lessons").update(draggedLessonId, {
+      module_id: targetModuleId,
+      position: targetLessonPosition,
+    });
+
+    await fetchModulesAndLessons();
+  } catch (error) {
+    console.error("Error al reordenar la lección con Drag & Drop:", error);
+  } finally {
+    draggedLessonId = null;
   }
 };
 
@@ -318,7 +378,7 @@ const getZigzagStyle = (index) => {
 
 <template>
   <header class="w-full max-w-2xl mx-auto px-4 py-4 max-lg:py-0 border-gray-300 h-15 flex items-center max-lg:shrink-0 max-lg:w-full max-lg:bg-white">
-   <div class="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar w-full py-1">
+    <div class="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar w-full py-1">
       <button
         v-for="option in levelOptions"
         :value="option.value"
@@ -331,11 +391,12 @@ const getZigzagStyle = (index) => {
             : 'bg-white text-slate-700 border-slate-300 hover:border-teal-400'
         ]"
       >
-        <span class=" max-lg:hidden inline">{{ option.label }}</span>
-        <span class=" max-lg:inline hidden">{{ option.value }}</span>
+        <span class="max-lg:hidden inline">{{ option.label }}</span>
+        <span class="max-lg:inline hidden">{{ option.value }}</span>
       </button>
     </div>
   </header>
+
   <main class="w-full mx-auto overflow-hidden overflow-y-auto max-w-2xl h-full max-lg:max-w-none">
     <div class="w-full mx-auto p-4 space-y-6 bg-white min-h-screen pb-24">
       <!-- Lista Vertical de Módulos -->
@@ -347,7 +408,7 @@ const getZigzagStyle = (index) => {
             'opacity-80': !mod.is_published,
           })"
         >
-          <!-- Encabezado del Módulo con Dropdown de Opciones -->
+          <!-- Encabezado del Módulo con Botón (+) Rápido y Dropdown de Opciones -->
           <div class="flex justify-between items-start mb-6 pb-3 border-b-2 border-slate-200 relative">
             <div>
               <span class="text-xs font-black text-teal-600 uppercase tracking-wider">
@@ -362,95 +423,131 @@ const getZigzagStyle = (index) => {
               </p>
             </div>
 
-            <!-- Botón 3 Puntos (Dropdown Toggle) -->
-            <div class="relative">
+            <div class="flex items-center gap-2">
+              <!-- Botón Pequeño Solo Icono (+) para agregar lección rápida -->
               <button
-                @click.stop="toggleDropdown(mod.id, $event)"
-                class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer"
+                @click="openNewLessonSheet(mod.id, (lessonsByModule[mod.id] || []).length + 1)"
+                class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 border-2 border-teal-300 hover:bg-teal-500 hover:text-white hover:border-teal-600 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+                title="Agregar lección"
               >
-                <FontAwesomeIcon :icon="faEllipsisVertical" class="text-lg" />
+                <FontAwesomeIcon :icon="faPlus" class="text-sm font-black" />
               </button>
 
-              <!-- Menú Desplegable -->
-              <div
-                v-if="activeDropdownId === mod.id"
-                class="absolute right-0 mt-2 w-48 bg-white border-2 border-slate-200 rounded-2xl shadow-xl z-30 py-2 space-y-1"
-              >
+              <!-- Botón 3 Puntos (Dropdown Toggle) -->
+              <div class="relative">
                 <button
-                  @click="openEditModuleSheet(mod, $event)"
-                  class="w-full px-4 py-2 text-left text-xs font-black text-slate-700 hover:bg-teal-50 hover:text-teal-700 flex items-center gap-2 cursor-pointer"
+                  @click.stop="toggleDropdown(mod.id, $event)"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer"
                 >
-                  <FontAwesomeIcon :icon="faPen" /> Editar Módulo
+                  <FontAwesomeIcon :icon="faEllipsisVertical" class="text-lg" />
                 </button>
 
-                <button
-                  v-if="mIndex > 0"
-                  @click="moveModulePosition(mIndex, 'up', $event)"
-                  class="w-full px-4 py-2 text-left text-xs font-black text-slate-700 hover:bg-teal-50 hover:text-teal-700 flex items-center gap-2 cursor-pointer"
+                <!-- Menú Desplegable -->
+                <div
+                  v-if="activeDropdownId === mod.id"
+                  class="absolute right-0 mt-2 w-48 bg-white border-2 border-slate-200 rounded-2xl shadow-xl z-30 py-2 space-y-1"
                 >
-                  <FontAwesomeIcon :icon="faArrowUp" /> Mover Arriba
-                </button>
+                  <button
+                    @click="openEditModuleSheet(mod, $event)"
+                    class="w-full px-4 py-2 text-left text-xs font-black text-slate-700 hover:bg-teal-50 hover:text-teal-700 flex items-center gap-2 cursor-pointer"
+                  >
+                    <FontAwesomeIcon :icon="faPen" /> Editar Módulo
+                  </button>
 
-                <button
-                  v-if="mIndex < modules.length - 1"
-                  @click="moveModulePosition(mIndex, 'down', $event)"
-                  class="w-full px-4 py-2 text-left text-xs font-black text-slate-700 hover:bg-teal-50 hover:text-teal-700 flex items-center gap-2 cursor-pointer"
-                >
-                  <FontAwesomeIcon :icon="faArrowDown" /> Mover Abajo
-                </button>
+                  <button
+                    v-if="mIndex > 0"
+                    @click="moveModulePosition(mIndex, 'up', $event)"
+                    class="w-full px-4 py-2 text-left text-xs font-black text-slate-700 hover:bg-teal-50 hover:text-teal-700 flex items-center gap-2 cursor-pointer"
+                  >
+                    <FontAwesomeIcon :icon="faArrowUp" /> Mover Arriba
+                  </button>
 
-                <div class="border-t border-slate-100 my-1"></div>
+                  <button
+                    v-if="mIndex < modules.length - 1"
+                    @click="moveModulePosition(mIndex, 'down', $event)"
+                    class="w-full px-4 py-2 text-left text-xs font-black text-slate-700 hover:bg-teal-50 hover:text-teal-700 flex items-center gap-2 cursor-pointer"
+                  >
+                    <FontAwesomeIcon :icon="faArrowDown" /> Mover Abajo
+                  </button>
 
-                <button
-                  @click="deleteModule(mod.id, $event)"
-                  class="w-full px-4 py-2 text-left text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
-                >
-                  <FontAwesomeIcon :icon="faTrash" /> Eliminar Módulo
-                </button>
+                  <div class="border-t border-slate-100 my-1"></div>
+
+                  <button
+                    @click="deleteModule(mod.id, $event)"
+                    class="w-full px-4 py-2 text-left text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    <FontAwesomeIcon :icon="faTrash" /> Eliminar Módulo
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Ruta en Zigzag de Lecciones -->
+          <!-- Ruta en Zigzag de Lecciones con Drag & Drop e Inserción Intermedia -->
           <div class="flex flex-col items-center gap-6 my-4 py-2">
-            <div
-              v-for="(lesson, lIndex) in lessonsByModule[mod.id] || []"
-              :key="lesson.id"
-              :style="getZigzagStyle(lIndex)"
-              @click="goToLessonDetail(lesson.id)"
-              class="group flex flex-col items-center cursor-pointer active:scale-95"
-            >
+            <template v-for="(lesson, lIndex) in lessonsByModule[mod.id] || []" :key="lesson.id">
+              
+              <!-- Botón (+) Intermedio para insertar lección entre medio -->
               <div
-                :class="clsx('w-16 h-16 rounded-full border-b-4 text-white flex items-center justify-center shadow-md  transition-colors relative' , {
-                  'bg-red-400 border-red-700 group-hover:bg-red-600': lesson.color === 'red',
-                  'bg-blue-400 border-blue-700 group-hover:bg-blue-600': lesson.color === 'blue',
-                  'bg-teal-400 border-teal-700 group-hover:bg-teal-600': lesson.color === 'green',
-                  'bg-yellow-400 border-yellow-700 group-hover:bg-yellow-600': lesson.color === 'yellow',
-                  'bg-gray-400 border-gray-700 group-hover:bg-gray-600': !lesson.color,
-                  'bg-gray-400! opacity-50 border-gray-700! group-hover:bg-gray-600!': !lesson.is_published,
-                })"
+                @click="openNewLessonSheet(mod.id, lesson.position)"
+                class="group/add flex items-center justify-center cursor-pointer my-[-10px] z-10"
+                title="Insertar lección aquí"
               >
-                <!-- Renderiza el icono dinámico guardado en la lección -->
-                <FontAwesomeIcon v-if="lesson.is_published" :icon="getIconComponent(lesson.icon)" class="text-xl" />
-                <FontAwesomeIcon v-else="lesson.is_published" :icon="faPencil" class="text-xl" />
+                <div class="w-7 h-7 rounded-full bg-teal-100 border-2 border-dashed border-teal-400 text-teal-600 flex items-center justify-center shadow-xs group-hover/add:scale-125 group-hover/add:bg-teal-500 group-hover/add:text-white transition-all">
+                  <FontAwesomeIcon :icon="faPlus" class="text-xs" />
+                </div>
+              </div>
 
-                <span
-                  class="absolute -top-1 -right-1 w-5 h-5 bg-teal-900 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white"
+              <!-- Nodo de Lección Dragueable -->
+              <div
+                :style="getZigzagStyle(lIndex)"
+                draggable="true"
+                @dragstart="onDragStart(lesson.id, $event)"
+                @dragover.prevent
+                @drop="onDropLesson(mod.id, lesson.position)"
+                @click="goToLessonDetail(lesson.id)"
+                class="group relative flex flex-col items-center cursor-pointer active:scale-95"
+              >
+                <!-- Botón de eliminación rápida (Papelera) flotante -->
+                <button
+                  @click="deleteLessonDirectly(lesson.id, $event)"
+                  class="absolute -top-2 -left-2 w-7 h-7 bg-white border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+                  title="Eliminar lección"
                 >
-                  {{ lesson.position }}
+                  <FontAwesomeIcon :icon="faTrash" class="text-xs" />
+                </button>
+
+                <div
+                  :class="clsx('w-16 h-16 rounded-full border-b-4 text-white flex items-center justify-center shadow-md transition-colors relative', {
+                    'bg-red-400 border-red-700 group-hover:bg-red-600': lesson.color === 'red',
+                    'bg-blue-400 border-blue-700 group-hover:bg-blue-600': lesson.color === 'blue',
+                    'bg-teal-400 border-teal-700 group-hover:bg-teal-600': lesson.color === 'green',
+                    'bg-yellow-400 border-yellow-700 group-hover:bg-yellow-600': lesson.color === 'yellow',
+                    'bg-gray-400 border-gray-700 group-hover:bg-gray-600': !lesson.color,
+                    'bg-gray-400! opacity-50 border-gray-700! group-hover:bg-gray-600!': !lesson.is_published,
+                  })"
+                >
+                  <FontAwesomeIcon v-if="lesson.is_published" :icon="getIconComponent(lesson.icon)" class="text-xl" />
+                  <FontAwesomeIcon v-else :icon="faPencil" class="text-xl" />
+
+                  <span
+                    class="absolute -top-1 -right-1 w-5 h-5 bg-teal-900 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white"
+                  >
+                    {{ lesson.position }}
+                  </span>
+                </div>
+                <span class="text-xs font-black text-slate-700 mt-1 max-w-[200px] text-center truncate">
+                  <span v-if="lesson.is_published">{{ lesson.title }}</span>
+                  <span v-else class="text-gray-400">{{ lesson.title }} (Borrador)</span>
                 </span>
               </div>
-              <span class="text-xs font-black text-slate-700 mt-1 max-w-[200px] text-center truncate">
-                <span v-if="lesson.is_published">{{ lesson.title }}</span>
-                <span v-else class="text-gray-400">{{ lesson.title }} (Borrador)</span>
-              </span>
-            </div>
+            </template>
 
-            <!-- Placeholder de Lección (+ Agregar Lección) -->
+            <!-- Placeholder final de Lección (+ Agregar Lección) -->
             <div
               :style="getZigzagStyle((lessonsByModule[mod.id] || []).length)"
-              @click="openNewLessonSheet(mod.id)"
-              class="flex flex-col items-center cursor-pointer active:scale-95 group"
+              @click="openNewLessonSheet(mod.id, (lessonsByModule[mod.id] || []).length + 1)"
+              class="flex flex-col items-center cursor-pointer active:scale-95 group mt-2"
             >
               <div
                 class="w-16 h-16 rounded-full border-4 border-dashed border-teal-400/60 bg-teal-50/50 text-teal-600 flex items-center justify-center group-hover:border-teal-500 group-hover:bg-teal-100/50 transition-all"
@@ -464,7 +561,7 @@ const getZigzagStyle = (index) => {
           </div>
         </div>
 
-        <!-- Placeholder transparente de Módulo (+ Agregar Módulo) -->
+        <!-- Placeholder transparente de Módulo -->
         <div
           @click="openNewModuleSheet"
           class="p-6 rounded-3xl border-4 border-dashed border-slate-300/80 bg-slate-50/40 hover:bg-slate-100/60 hover:border-teal-500/60 cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group text-center"
