@@ -4,6 +4,7 @@ import {
   faBookBookmark,
   faReply,
   faRoute,
+  faUserGraduate,
 } from "@fortawesome/free-solid-svg-icons";
 const links = [
   {
@@ -14,12 +15,17 @@ const links = [
   {
     path: "/studio/route",
     icon: faRoute,
-    label: "Ruta de Aprendizaje",
+    label: "Ruta",
   },
   {
     path: "/studio/dictionary",
     icon: faBookBookmark,
     label: "Diccionario",
+  },
+   {
+    path: "/studio/trainees",
+    icon: faUserGraduate,
+    label: "Aprendices",
   },
 ];
 </script>
@@ -44,7 +50,7 @@ const links = [
         <h2
           class="font-black text-teal-500 text-2xl absolute inset-x-0 -bottom-3.5 translate-x-1/2 -z-1"
         >
-          Studio
+          Estudio
         </h2>
       </RouterLink>
 
@@ -52,7 +58,7 @@ const links = [
         v-for="link in links"
         :key="link.path"
         :to="link.path"
-        class="px-4 py-2 max-lg:p-2 rounded-2xl  border-2 border-transparent inline-flex text-base max-lg:w-auto w-full items-center max-lg:justify-center gap-2 uppercase font-bold text-gray-500 hover:text-gray-700 cursor-pointer"
+        class="px-4 text-nowrap py-2 max-lg:p-2 rounded-2xl  border-2 border-transparent inline-flex text-base max-lg:w-auto w-full items-center max-lg:justify-center gap-2 uppercase font-bold text-gray-500 hover:text-gray-700 cursor-pointer"
         active-class="bg-teal-600 hover:text-white text-white border-teal-800!"
       >
         <FontAwesomeIcon :icon="link.icon" class="text-2xl" />

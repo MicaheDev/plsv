@@ -17,7 +17,7 @@ const form = reactive({
   email: "",
   password: "",
   passwordConfirm: "",
-  role: "STUDENT",
+  role: "TRAINEE",
 });
 
 const onboardingPreferences = ref({});
@@ -69,7 +69,6 @@ async function handleOnSubmit() {
 </script>
 
 <template>
-
   <div
     class="w-full min-h-full flex flex-col justify-center items-center max-w-2xl mx-auto p-4"
   >
@@ -79,9 +78,9 @@ async function handleOnSubmit() {
     >
       <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-2">
-          <h1 class="text-2xl font-black text-center">Crear una Cuenta</h1>
+          <h1 class="text-2xl font-black text-center">Añadir Aprendiz</h1>
           <p class="text-gray-500 font-medium text-center text-sm">
-            Bienvenido de vuelta. Por favor, ingresa tus credenciales.
+            Ingresa los datos del nuevo aprendiz para agregarlo al sistema.
           </p>
         </div>
 
@@ -107,6 +106,7 @@ async function handleOnSubmit() {
           Nombre de usuario
         </Input>
 
+        <!--
         <Input
           type="email"
           v-model="form.email"
@@ -115,7 +115,7 @@ async function handleOnSubmit() {
           autocomplete="email"
         >
           E-mail
-        </Input>
+        </Input> 
 
         <Input
           type="password"
@@ -135,6 +135,9 @@ async function handleOnSubmit() {
           Confirmar Contraseña
         </Input>
 
+       -->
+
+        
         <div
           v-if="errorMessage"
           class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl text-sm"
@@ -143,13 +146,11 @@ async function handleOnSubmit() {
         </div>
       </div>
       <div class="w-full flex flex-row gap-3 max-lg:flex-col justify-center">
-        <Button class="w-full" type="submit" :disabled="isLoading">
-          {{ isLoading ? "Registrando..." : "Registrarse" }}
+        <Button class="w-full" type="submit" :disabled="isLoading" variant="studio">
+          {{ isLoading ? "Agregando..." : "Agregar" }}
         </Button>
 
-        <LinkButton class="w-full" to="/login" variant="secondary">
-          Ya tengo una cuenta
-        </LinkButton>
+
       </div>
     </form>
   </div>

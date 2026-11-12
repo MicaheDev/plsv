@@ -10,7 +10,7 @@ import LinkButton from '@/components/LinkButton.vue';
     <div class="flex items-center max-lg:flex-col max-lg:justify-between gap-8 max-lg:gap-2">
       <div class="w-full flex flex-col gap-2">
         <h2 class="text-3xl text-center font-black">Bienvenidos a LinguSeñas</h2>
-        <p class="text-gray-700 max-lg:hidden text-justify">
+        <p class="text-gray-700 text-sm max-lg:hidden text-justify">
           LinguSeñas es un proyecto socio-tecnológico contextualizado en la U.E. Bartolomé Salom en Puerto Cabello,
           concebido para reducir las barreras de comunicación entre la comunidad sorda y los oyentes mediante
           herramientas digitales interactivas.
@@ -35,17 +35,11 @@ import LinkButton from '@/components/LinkButton.vue';
 
     <!-- Botones de Acción -->
     <div class="w-full flex flex-row gap-3 max-lg:flex-col justify-center">
-      <LinkButton class="w-full" to="/welcome" variant="primary">
+      <LinkButton class="w-full" to="/login" variant="primary">
         Empezar
       </LinkButton>
 
-      <LinkButton class="w-full" to="/login" variant="secondary">
-        Ya tengo una cuenta
-      </LinkButton>
-
-
     </div>
-
   </div>
 </template>
 

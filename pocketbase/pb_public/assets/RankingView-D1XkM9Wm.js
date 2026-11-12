@@ -1,0 +1,1 @@
+import{_ as a}from"./Working.vue_vue_type_script_setup_true_lang-D0CfiQrY.js";import{H as e,o}from"./index-CEAtn1QT.js";const s={__name:"RankingView",setup(r){return(_,t)=>(o(),e(a))}};export{s as default};

@@ -14,21 +14,13 @@ const routes = [
         name: "Home",
         component: () => import("@/views/HomeView.vue"),
       },
-      {
-        path: "/welcome",
-        name: "Welcome",
-        component: () => import("@/views/WelcomeView.vue"),
-      },
+   
       {
         path: "/login",
         name: "Login",
         component: () => import("@/views/LoginView.vue"),
       },
-      {
-        path: "/register",
-        name: "Register",
-        component: () => import("@/views/RegisterView.vue"),
-      },
+   
     ],
   },
   {
@@ -80,7 +72,12 @@ const routes = [
         path: "/studio/lesson/:id",
         name: "LessonDetail",
         component: () => import("@/views/admin/LessonDetail.vue")
-      }
+      },
+         {
+        path: "/studio/trainees",
+        name: "trainees",
+        component: () => import("@/views/admin/TraineesView.vue"),
+      },
     ]
   }
 ];

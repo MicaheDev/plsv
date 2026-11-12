@@ -3,6 +3,7 @@ import Button from "@/components/Button.vue";
 import LinkButton from "@/components/LinkButton.vue";
 import pb from "@/services/pb";
 import { fechaFormateada } from "@/utilities/formatDate";
+import clsx from "clsx";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -16,8 +17,8 @@ function logout() {
 
 function getRole(role_name) {
   switch (role_name) {
-    case "STUDENT":
-      return "ESTUDIANTE";
+    case "TRAINEE":
+      return "APRENDIZ";
     case "ADMIN":
       return "ADMINISTRADOR";
     case "TEACHER":
@@ -38,7 +39,12 @@ function getRole(role_name) {
     <div class="w-full max-lg:gap-2 bg-white border-2 border-slate-200 rounded-2xl p-6 flex items-center justify-between gap-4 max-lg:flex-col">
       <div class="flex items-center max-lg:flex-col gap-4 overflow-hidden">
         <figure
-          class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-black text-2xl uppercase shrink-0"
+          :class="clsx('w-16 h-16 text-white rounded-full flex items-center justify-center font-black text-2xl uppercase shrink-0', {
+            'bg-blue-600': currentUser?.role === 'TRAINEE',
+            'bg-black': currentUser?.role === 'ADMIN',
+            'bg-emerald-600': currentUser?.role === 'TEACHER',
+            'bg-slate-500': !['TRAINEE', 'ADMIN', 'TEACHER'].includes(currentUser?.role)
+          })"
         >
           {{ currentUser?.username?.[0] || 'U' }}
         </figure>
@@ -56,10 +62,10 @@ function getRole(role_name) {
       <span
         class="text-xs font-bold px-3 py-1.5 rounded-xl uppercase tracking-wider text-white shrink-0"
         :class="{
-          'bg-blue-600': currentUser?.role === 'STUDENT',
+          'bg-blue-600': currentUser?.role === 'TRAINEE',
           'bg-black': currentUser?.role === 'ADMIN',
           'bg-emerald-600': currentUser?.role === 'TEACHER',
-          'bg-slate-500': !['STUDENT', 'ADMIN', 'TEACHER'].includes(currentUser?.role)
+          'bg-slate-500': !['TRAINEE', 'ADMIN', 'TEACHER'].includes(currentUser?.role)
         }"
       >
         {{ getRole(currentUser?.role) }}
@@ -73,10 +79,10 @@ function getRole(role_name) {
       <hr class="border-slate-200" />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Correo Electrónico -->
+        <!-- Nombre y Apellido -->
         <div class="flex flex-col">
-          <span class="text-xs font-bold uppercase text-slate-400">Correo Electrónico</span>
-          <span class="font-bold text-slate-800 truncate">{{ currentUser?.email }}</span>
+          <span class="text-xs font-bold uppercase text-slate-400">Nombre y Apellido</span>
+          <span class="font-bold text-slate-800 truncate">{{ currentUser?.fullName }}</span>
         </div>
 
         <!-- Nombre de Usuario -->
@@ -111,7 +117,7 @@ function getRole(role_name) {
       <template v-if="currentUser?.role === 'ADMIN' || currentUser?.role === 'TEACHER'">
         <div class="flex items-center justify-between gap-4 max-lg:flex-col max-lg:items-start">
           <div>
-            <p class="font-bold text-slate-800">Modo Studio</p>
+            <p class="font-bold text-slate-800">Modo Estudio</p>
             <p class="text-sm font-medium text-slate-400">Accede al panel de gestión e impartición de contenidos.</p>
           </div>
           <LinkButton
@@ -119,7 +125,7 @@ function getRole(role_name) {
             variant="secondary"
             class="shrink-0"
           >
-            Ir a Studio
+            Ir a Estudio
           </LinkButton>
         </div>
 

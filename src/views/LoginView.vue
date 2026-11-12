@@ -81,9 +81,6 @@ async function handleOnSubmit() {
           {{ isLoading ? "Accediendo..." : "Acceder" }}
         </Button>
 
-        <LinkButton class="w-full" variant="secondary" to="/register">
-          Crear una cuenta
-        </LinkButton>
       </div>
     </form>
   </div>

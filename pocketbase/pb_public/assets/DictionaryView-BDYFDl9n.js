@@ -1,0 +1,1 @@
+import{_ as o}from"./Working.vue_vue_type_script_setup_true_lang-D0CfiQrY.js";import{H as r,o as a}from"./index-CEAtn1QT.js";const n={__name:"DictionaryView",setup(e){return(t,_)=>(a(),r(o))}};export{n as default};
