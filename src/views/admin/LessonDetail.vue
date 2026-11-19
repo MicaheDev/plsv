@@ -1,24 +1,23 @@
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Button from "@/components/Button.vue";
 import Input from "@/components/Input.vue";
 import Select from "@/components/Select.vue";
-import BottomSheet from "@/components/BottomSheet.vue";
 import pb from "@/services/pb";
 import {
   faPlus,
   faTrash,
-  faVideo,
   faArrowLeft,
-  faImage,
-  faFileUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const route = useRoute();
 const router = useRouter();
 const lessonId = route.params.id;
+
+const DRAFT_KEY = `studio_challenge_draft_${lessonId}`;
+const NEW_SIGN_KEY = "studio_newly_created_sign_id";
 
 // Estados principales
 const lesson = ref(null);
@@ -28,6 +27,7 @@ const signs = ref([]);
 // Estado de selección del Reto activo en el Timeline
 const activeChallengeIndex = ref(0);
 const isEditingExisting = ref(false);
+const hasDraftRestored = ref(false);
 
 // Formulario del Reto
 const challengeForm = ref({
@@ -47,14 +47,6 @@ const challengeTypeOptions = [
   { label: "Quiz Inverso", value: "REVERSE_QUIZ" },
   { label: "Emparejamiento", value: "MATCHING" },
   { label: "Práctica Libre", value: "FREE_PRACTICE" },
-];
-
-const categoryOptions = [
-  { label: "Sustantivo", value: "sustantivo" },
-  { label: "Verbo", value: "verbo" },
-  { label: "Adjetivo", value: "adjetivo" },
-  { label: "Expresión / Frase", value: "expresion" },
-  { label: "Otro", value: "otro" },
 ];
 
 // Computed para determinar si el reto activo requiere opciones de respuesta
@@ -91,6 +83,9 @@ const loadChallengeIntoForm = (index) => {
 
   activeChallengeIndex.value = index;
   isEditingExisting.value = true;
+  hasDraftRestored.value = false;
+  sessionStorage.removeItem(DRAFT_KEY);
+
   const item = challenges.value[index];
 
   let parsedConfig = { options: ["", "", ""], correct_answer: "" };
@@ -123,6 +118,9 @@ const loadChallengeIntoForm = (index) => {
 const resetFormForNewChallenge = () => {
   activeChallengeIndex.value = challenges.value.length;
   isEditingExisting.value = false;
+  hasDraftRestored.value = false;
+  sessionStorage.removeItem(DRAFT_KEY);
+
   challengeForm.value = {
     id: null,
     challenge_type: "DEMO",
@@ -135,7 +133,24 @@ const resetFormForNewChallenge = () => {
   };
 };
 
-// Cargar datos iniciales
+// Guardar borrador del reto antes de ir a crear una seña
+const goToCreateSign = () => {
+  sessionStorage.setItem(
+    DRAFT_KEY,
+    JSON.stringify({
+      activeChallengeIndex: activeChallengeIndex.value,
+      isEditingExisting: isEditingExisting.value,
+      form: { ...challengeForm.value },
+    }),
+  );
+
+  router.push({
+    path: "/studio/signs/new",
+    query: { returnTo: route.fullPath },
+  });
+};
+
+// Cargar datos iniciales y restaurar borrador / nueva seña si aplica
 const fetchLessonData = async () => {
   try {
     lesson.value = await pb.collection("lessons").getOne(lessonId);
@@ -151,10 +166,30 @@ const fetchLessonData = async () => {
     });
     signs.value = [...signRecords];
 
-    if (challenges.value.length > 0) {
+    const rawDraft = sessionStorage.getItem(DRAFT_KEY);
+    const newlyCreatedSignId = sessionStorage.getItem(NEW_SIGN_KEY);
+
+    if (rawDraft) {
+      const draft = JSON.parse(rawDraft);
+      if (typeof draft.activeChallengeIndex === "number") {
+        activeChallengeIndex.value = draft.activeChallengeIndex;
+      }
+      isEditingExisting.value = Boolean(draft.isEditingExisting);
+      challengeForm.value = {
+        ...challengeForm.value,
+        ...(draft.form || {}),
+      };
+      hasDraftRestored.value = true;
+      sessionStorage.removeItem(DRAFT_KEY);
+    } else if (challenges.value.length > 0) {
       loadChallengeIntoForm(0);
     } else {
       resetFormForNewChallenge();
+    }
+
+    if (newlyCreatedSignId) {
+      challengeForm.value.target_id = newlyCreatedSignId;
+      sessionStorage.removeItem(NEW_SIGN_KEY);
     }
   } catch (error) {
     console.error("Error al cargar los datos de la lección:", error);
@@ -166,6 +201,7 @@ onMounted(() => {
 });
 
 const goBack = () => {
+  sessionStorage.removeItem(DRAFT_KEY);
   router.push("/studio/route");
 };
 
@@ -196,6 +232,9 @@ const saveChallenge = async () => {
       await pb.collection("challenges").create(payload);
     }
 
+    sessionStorage.removeItem(DRAFT_KEY);
+    hasDraftRestored.value = false;
+
     const savedIndex = activeChallengeIndex.value;
     await fetchLessonData();
     if (savedIndex < challenges.value.length) {
@@ -218,83 +257,12 @@ const deleteChallenge = async () => {
     console.error("Error al eliminar el reto:", error);
   }
 };
-
-// --- MODAL DE SEÑAS AL VUELO ---
-const isSignModalOpen = ref(false);
-const isUploadingSign = ref(false);
-
-const signForm = ref({
-  gloss: "",
-  meaning: "",
-  description: "",
-  grammatical_category: "sustantivo",
-});
-
-const videoFile = ref(null);
-const imageFile = ref(null);
-const representationImageFile = ref(null);
-
-const handleVideoChange = (e) => {
-  videoFile.value = e.target.files[0] || null;
-};
-const handleImageChange = (e) => {
-  imageFile.value = e.target.files[0] || null;
-};
-const handleRepresentationImageChange = (e) => {
-  representationImageFile.value = e.target.files[0] || null;
-};
-
-const saveNewSign = async () => {
-  try {
-    isUploadingSign.value = true;
-
-    const formData = new FormData();
-    formData.append("gloss", signForm.value.gloss);
-    formData.append("meaning", signForm.value.meaning);
-    formData.append("description", signForm.value.description);
-    formData.append(
-      "grammatical_category",
-      signForm.value.grammatical_category,
-    );
-
-    if (videoFile.value) formData.append("video", videoFile.value);
-    if (imageFile.value) formData.append("image", imageFile.value);
-    if (representationImageFile.value) {
-      formData.append("representation_image", representationImageFile.value);
-    }
-
-    const newSign = await pb.collection("signs").create(formData);
-
-    const signRecords = await pb
-      .collection("signs")
-      .getFullList({ sort: "gloss" });
-    signs.value = [...signRecords];
-
-    challengeForm.value.target_id = newSign.id;
-    isSignModalOpen.value = false;
-
-    signForm.value = {
-      gloss: "",
-      meaning: "",
-      description: "",
-      grammatical_category: "sustantivo",
-    };
-    videoFile.value = null;
-    imageFile.value = null;
-    representationImageFile.value = null;
-  } catch (error) {
-    console.error("Error al crear la seña con multimedia:", error);
-    alert("Error al subir los archivos de la seña.");
-  } finally {
-    isUploadingSign.value = false;
-  }
-};
 </script>
 
 <template>
   <!-- Header Principal -->
   <header
-    class="w-full max-w-2xl mx-auto px-6 flex items-center justify-between border-b border-slate-200 h-16 bg-white sticky top-0"
+    class="w-full max-w-2xl mx-auto px-6 flex items-center justify-between border-b border-slate-200 h-16 bg-white sticky top-0 z-20"
   >
     <div class="flex items-center gap-3">
       <button
@@ -319,7 +287,7 @@ const saveNewSign = async () => {
 
   <!-- Contenido Principal: Formulario Inline del Reto Seleccionado -->
   <main class="w-full overflow-y-auto max-w-2xl mx-auto h-full pb-24">
-    <!-- Sub-Header: Línea de Tiempo Horizontal (Frame 4) -->
+    <!-- Sub-Header: Línea de Tiempo Horizontal -->
     <div
       class="w-full max-w-2xl px-2 mx-auto bg-slate-100/90 border-b border-slate-200 py-2 mb-4"
     >
@@ -330,10 +298,10 @@ const saveNewSign = async () => {
       </div>
 
       <!-- Container con Scroll Horizontal -->
-      <div
-        class="flex items-center gap-2"
-      >
-        <div class=" lex items-center gap-2 overflow-x-auto no-scrollbar w-full h-15 px-4 flex items-center gap-2">
+      <div class="flex items-center gap-2">
+        <div
+          class="overflow-x-auto no-scrollbar w-full h-15 px-4 flex items-center gap-2"
+        >
           <button
             v-for="(item, idx) in challenges"
             :key="item.id || idx"
@@ -349,7 +317,9 @@ const saveNewSign = async () => {
           </button>
         </div>
 
-        <div class="w-min p-2 border-l-2 border-slate-300 flex items-center justify-center">
+        <div
+          class="w-min p-2 border-l-2 border-slate-300 flex items-center justify-center"
+        >
           <button
             @click="resetFormForNewChallenge"
             :class="[
@@ -365,17 +335,26 @@ const saveNewSign = async () => {
         </div>
       </div>
     </div>
+
     <div class="bg-white p-4 rounded-3xl space-y-4">
       <div
         class="flex items-center justify-between pb-3 border-b border-slate-100"
       >
-        <h2 class="font-black text-teal-950 text-base">
-          {{
-            isEditingExisting
-              ? `Configurar Reto #${activeChallengeIndex + 1}`
-              : "Crear Nuevo Reto"
-          }}
-        </h2>
+        <div class="flex items-center gap-2">
+          <h2 class="font-black text-teal-950 text-base">
+            {{
+              isEditingExisting
+                ? `Configurar Reto #${activeChallengeIndex + 1}`
+                : "Crear Nuevo Reto"
+            }}
+          </h2>
+          <span
+            v-if="hasDraftRestored"
+            class="text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full"
+          >
+            Borrador
+          </span>
+        </div>
 
         <button
           v-if="isEditingExisting"
@@ -406,7 +385,7 @@ const saveNewSign = async () => {
             >
             <button
               type="button"
-              @click="isSignModalOpen = true"
+              @click="goToCreateSign"
               class="text-xs font-black text-teal-700 hover:underline cursor-pointer"
             >
               + Crear nueva seña
@@ -487,115 +466,5 @@ const saveNewSign = async () => {
         </div>
       </form>
     </div>
-
-    <!-- BottomSheet Modal: Registrar Nueva Seña al Vuelo (Se mantiene intacto) -->
-    <BottomSheet
-      v-model="isSignModalOpen"
-      title="Registrar Nueva Seña"
-    >
-      <form @submit.prevent="saveNewSign" class="space-y-4 max-w-2xl mx-auto">
-        <Input
-          v-model="signForm.gloss"
-          variant="studio"
-          placeholder="Ej. HOLA"
-          required
-        >
-          Glosa (Nombre de la seña)
-        </Input>
-
-        <Input
-          v-model="signForm.meaning"
-          variant="studio"
-          placeholder="Ej. Saludo formal"
-          required
-        >
-          Significado en Español
-        </Input>
-
-        <Select
-          v-model="signForm.grammatical_category"
-          :options="categoryOptions"
-          variant="studio"
-          required
-        >
-          Categoría Gramatical
-        </Select>
-
-        <div class="flex flex-col gap-2 w-full">
-          <label class="font-black text-teal-900 text-sm"
-            >Descripción de ejecución</label
-          >
-          <textarea
-            v-model="signForm.description"
-            rows="2"
-            class="px-4 py-2 resize-none rounded-2xl w-full text-base font-bold border-2 border-slate-200 bg-gray-50 focus:border-teal-600 focus:outline-none"
-            placeholder="Cómo realizar el gesto..."
-          ></textarea>
-        </div>
-
-        <!-- Archivo 1: Video (.mp4) -->
-        <div class="flex flex-col gap-1 w-full">
-          <label
-            class="font-black text-teal-900 text-sm flex items-center gap-1.5"
-          >
-            <FontAwesomeIcon :icon="faVideo" class="text-teal-600" /> Video de
-            la Seña (.mp4)
-          </label>
-          <input
-            type="file"
-            accept="video/mp4,.mp4"
-            @change="handleVideoChange"
-            class="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-teal-100 file:text-teal-700 hover:file:bg-teal-200 text-xs font-bold text-slate-500 cursor-pointer"
-          />
-        </div>
-
-        <!-- Archivo 2: Imagen Principal (.jpg, .png) -->
-        <div class="flex flex-col gap-1 w-full">
-          <label
-            class="font-black text-teal-900 text-sm flex items-center gap-1.5"
-          >
-            <FontAwesomeIcon :icon="faImage" class="text-teal-600" /> Imagen de
-            la Seña (.jpg, .png)
-          </label>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,.jpg,.png"
-            @change="handleImageChange"
-            class="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-teal-100 file:text-teal-700 hover:file:bg-teal-200 text-xs font-bold text-slate-500 cursor-pointer"
-          />
-        </div>
-
-        <!-- Archivo 3: Imagen de Representación (.jpg, .png) -->
-        <div class="flex flex-col gap-1 w-full">
-          <label
-            class="font-black text-teal-900 text-sm flex items-center gap-1.5"
-          >
-            <FontAwesomeIcon :icon="faFileUpload" class="text-teal-600" />
-            Imagen de Ilustración / Representación
-          </label>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,.jpg,.png"
-            @change="handleRepresentationImageChange"
-            class="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-teal-100 file:text-teal-700 hover:file:bg-teal-200 text-xs font-bold text-slate-500 cursor-pointer"
-          />
-        </div>
-
-        <div class="pt-4">
-          <Button
-            type="submit"
-            variant="studio"
-            class="w-full"
-            :disabled="isUploadingSign"
-          >
-            {{
-              isUploadingSign
-                ? "Subiendo Archivos..."
-                : "Guardar Seña y Asociar"
-            }}
-          </Button>
-        </div>
-      </form>
-    </BottomSheet>
   </main>
 </template>

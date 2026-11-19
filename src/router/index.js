@@ -14,19 +14,18 @@ const routes = [
         name: "Home",
         component: () => import("@/views/HomeView.vue"),
       },
-   
+
       {
         path: "/login",
         name: "Login",
         component: () => import("@/views/LoginView.vue"),
       },
 
-          {
+      {
         path: "/activate-account",
         name: "ActivateAccount",
         component: () => import("@/views/ActivateAccountView.vue"),
       },
-   
     ],
   },
   {
@@ -62,30 +61,35 @@ const routes = [
   },
   {
     path: "/",
-    meta: { layout: StudioLayout,requiresAuth: true, requiresAdmin: true},
+    meta: { layout: StudioLayout, requiresAuth: true, requiresAdmin: true },
     children: [
       {
         path: "/studio/route",
         name: "Route",
-        component: () => import("@/views/admin/RouteView.vue")
+        component: () => import("@/views/admin/RouteView.vue"),
       },
-       {
+      {
+        path: "/studio/signs/new",
+        name: "SignCreateView",
+        component: () => import("@/views/admin/SignCreateView.vue"),
+      },
+      {
         path: "/studio/dictionary",
         name: "DictionaryStudio",
-        component: () => import("@/views/admin/DictionaryView.vue")
+        component: () => import("@/views/admin/DictionaryView.vue"),
       },
-       {
+      {
         path: "/studio/lesson/:id",
         name: "LessonDetail",
-        component: () => import("@/views/admin/LessonDetail.vue")
+        component: () => import("@/views/admin/LessonDetail.vue"),
       },
-         {
+      {
         path: "/studio/trainees",
         name: "trainees",
         component: () => import("@/views/admin/TraineesView.vue"),
       },
-    ]
-  }
+    ],
+  },
 ];
 
 const router = createRouter({

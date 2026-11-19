@@ -1,0 +1,1 @@
+import{_ as e}from"./Working.vue_vue_type_script_setup_true_lang-BAP4UzeD.js";import{C as o,o as r}from"./index-B-D2Bsqs.js";const m={__name:"StoreView",setup(t){return(_,a)=>(r(),o(e))}};export{m as default};
