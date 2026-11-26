@@ -19,6 +19,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+import { categoryOptions } from "@/utilities/selects";
+
 const route = useRoute();
 const router = useRouter();
 
@@ -26,16 +28,9 @@ const signForm = ref({
   gloss: "",
   meaning: "",
   description: "",
-  grammatical_category: "sustantivo",
+  grammatical_category: "NOUN",
 });
 
-const categoryOptions = [
-  { label: "Sustantivo", value: "sustantivo" },
-  { label: "Verbo", value: "verbo" },
-  { label: "Adjetivo", value: "adjetivo" },
-  { label: "Expresión / Frase", value: "expresion" },
-  { label: "Otro", value: "otro" },
-];
 
 // Estado del video y recorte temporal
 const rawVideoUrl = ref("");
@@ -1046,7 +1041,7 @@ onBeforeUnmount(() => {
         class="w-full"
         :disabled="isSaving || isProcessing"
       >
-        {{ isSaving ? "Guardando..." : "Guardar Seña y Volver al Reto" }}
+        {{ isSaving ? "Guardando..." : "Guardar Seña" }}
       </Button>
     </form>
   </main>

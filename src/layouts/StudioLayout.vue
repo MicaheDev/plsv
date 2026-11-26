@@ -5,6 +5,8 @@ import {
   faReply,
   faRoute,
   faUserGraduate,
+  faHands,
+  faHandsAslInterpreting
 } from "@fortawesome/free-solid-svg-icons";
 const links = [
   {
@@ -17,11 +19,24 @@ const links = [
     icon: faRoute,
     label: "Ruta",
   },
-  {
+    {
+    path: "/studio/signs",
+    icon: faHands,
+    label: "Señas",
+  },
+     {
+    path: "/studio/phrases",
+    icon: faHandsAslInterpreting,
+    label: "Frases",
+  },
+ /**
+  *  {
     path: "/studio/dictionary",
     icon: faBookBookmark,
     label: "Diccionario",
   },
+  * 
+  */
    {
     path: "/studio/trainees",
     icon: faUserGraduate,
@@ -50,7 +65,7 @@ const links = [
         <h2
           class="font-black text-teal-500 text-2xl absolute inset-x-0 -bottom-3.5 translate-x-1/2 -z-1"
         >
-          Estudio
+          Studio
         </h2>
       </RouterLink>
 

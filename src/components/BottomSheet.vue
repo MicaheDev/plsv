@@ -20,7 +20,7 @@ const isShowed = defineModel({ type: Boolean, default: false });
 <template>
   <div
     :class="
-      clsx('fixed z-50 w-150 h-min max-h-full max-lg:w-full rounded-xl max-lg:rounded-none duration-300 max-lg:rounded-t-xl overflow-hidden max-lg:h-svh inset-0 m-auto border-2 border-slate-300 bg-white flex flex-col transition-transform preload', {
+      clsx('fixed z-50 w-150 h-min max-lg:h-auto max-h-full max-lg:w-full rounded-xl max-lg:rounded-none duration-300 max-lg:rounded-t-xl overflow-hidden max-lg:h-svh inset-0 m-auto border-2 border-slate-300 bg-white flex flex-col transition-transform preload', {
         'max-lg:translate-y-0 scale-100 max-lg:scale-100': isShowed,
         'max-lg:translate-y-full scale-0 max-lg:scale-100': !isShowed,
       }, props.class)

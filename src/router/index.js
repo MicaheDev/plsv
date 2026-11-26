@@ -37,6 +37,7 @@ const routes = [
         name: "Learning",
         component: () => import("@/views/LearningView.vue"),
       },
+
       {
         path: "/dictionary",
         name: "Dictionary",
@@ -60,33 +61,53 @@ const routes = [
     ],
   },
   {
+    path: "/learning/lesson/:id",
+    name: "Lessson",
+    component: () => import("@/views/LessonView.vue"),
+  },
+  {
     path: "/",
     meta: { layout: StudioLayout, requiresAuth: true, requiresAdmin: true },
     children: [
       {
         path: "/studio/route",
         name: "Route",
-        component: () => import("@/views/admin/RouteView.vue"),
+        component: () => import("@/views/studio/RouteView.vue"),
+      },
+      {
+        path: "/studio/signs",
+        name: "SignsView",
+        component: () => import("@/views/studio/SignsView.vue"),
       },
       {
         path: "/studio/signs/new",
         name: "SignCreateView",
-        component: () => import("@/views/admin/SignCreateView.vue"),
+        component: () => import("@/views/studio/SignCreateView.vue"),
+      },
+      {
+        path: "/studio/phrases",
+        name: "PhrasesView",
+        component: () => import("@/views/studio/PhrasesView.vue"),
+      },
+      {
+        path: "/studio/phrases/new",
+        name: "PhraseOrchestratorView",
+        component: () => import("@/views/studio/PhraseOrchestratorView.vue"),
       },
       {
         path: "/studio/dictionary",
         name: "DictionaryStudio",
-        component: () => import("@/views/admin/DictionaryView.vue"),
+        component: () => import("@/views/studio/DictionaryView.vue"),
       },
       {
         path: "/studio/lesson/:id",
         name: "LessonDetail",
-        component: () => import("@/views/admin/LessonDetail.vue"),
+        component: () => import("@/views/studio/LessonDetail.vue"),
       },
       {
         path: "/studio/trainees",
         name: "trainees",
-        component: () => import("@/views/admin/TraineesView.vue"),
+        component: () => import("@/views/studio/TraineesView.vue"),
       },
     ],
   },

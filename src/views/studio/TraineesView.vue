@@ -9,11 +9,9 @@ import {
   faPlus,
   faPen,
   faTrash,
-  faArrowLeft,
   faCopy,
   faLock,
   faCheck,
-  faUserGraduate,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 

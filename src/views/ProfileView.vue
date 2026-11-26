@@ -115,7 +115,7 @@ function getRole(role_name) {
       <template v-if="currentUser?.role === 'ADMIN' || currentUser?.role === 'TEACHER'">
         <div class="flex items-center justify-between gap-4 max-lg:flex-col max-lg:items-start">
           <div>
-            <p class="font-bold text-slate-800">Modo Estudio</p>
+            <p class="font-bold text-slate-800">Modo Studio</p>
             <p class="text-sm font-medium text-slate-400">Accede al panel de gestión e impartición de contenidos.</p>
           </div>
           <LinkButton
@@ -123,7 +123,7 @@ function getRole(role_name) {
             variant="secondary"
             class="shrink-0"
           >
-            Ir a Estudio
+            Ir a Studio
           </LinkButton>
         </div>
 
